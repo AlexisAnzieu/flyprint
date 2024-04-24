@@ -34,95 +34,48 @@ export async function GET(req: Request) {
     return Response.json({ error: "pictureUrl is required" });
   }
 
-  const client = new net.Socket();
+  const res = await fetch(
+    `http://70.81.36.26:9100/print?pictureUrl=${pictureUrl}`
+  );
+  return Response.json(res);
+  // const client = new net.Socket();
 
-  console.log("Created socket");
+  // console.log("Created socket");
 
-  await new Promise((resolve, reject) => {
-    client.connect(9100, "192.168.0.87", async function () {
-      console.log("Connected to the printer");
-      let encoder = new EscPosEncoder();
-      const image = await getImage(pictureUrl);
+  // await new Promise((resolve, reject) => {
+  //   client.connect(9100, "192.168.0.87", async function () {
+  //     console.log("Connected to the printer");
+  //     let encoder = new EscPosEncoder();
+  //     const image = await getImage(pictureUrl);
 
-      let result = encoder
-        .initialize()
-        .image(image, 520, 800, "atkinson")
-        .newline()
-        .cut()
-        .encode();
+  //     let result = encoder
+  //       .initialize()
+  //       .image(image, 520, 800, "atkinson")
+  //       .newline()
+  //       .cut()
+  //       .encode();
 
-      // Write data to the printer
-      const isBufferFull = !client.write(result);
+  //     // Write data to the printer
+  //     const isBufferFull = !client.write(result);
 
-      if (isBufferFull) {
-        console.log("Buffer full, waiting for drain event to write more data");
-        client.once("drain", doEnd);
-      } else {
-        doEnd();
-      }
+  //     if (isBufferFull) {
+  //       console.log("Buffer full, waiting for drain event to write more data");
+  //       client.once("drain", doEnd);
+  //     } else {
+  //       doEnd();
+  //     }
 
-      function doEnd() {
-        client.end(() => {
-          // Close the connection
-          console.log("Connection closed");
-          resolve("done");
-        });
-      }
-    });
-  });
+  //     function doEnd() {
+  //       client.end(() => {
+  //         // Close the connection
+  //         console.log("Connection closed");
+  //         resolve("done");
+  //       });
+  //     }
+  //   });
+  // });
 
-  console.log("Data sent and connection closed");
+  // console.log("Data sent and connection closed");
 
-  return Response.json("Printed");
+  // return Response.json("Printed");
 }
-// export async function GET(req: Request) {
-//   noStore();
-
-//   console.log("Printing");
-
-//   const { searchParams } = new URL(req.url);
-//   const pictureUrl = searchParams.get("pictureUrl");
-
-//   if (!pictureUrl) {
-//     return Response.json({ error: "pictureUrl is required" });
-//   }
-
-//   const client = new net.Socket();
-
-//   console.log("Created socket");
-
-//   const socket = client.connect(9100, "70.81.36.26", async function () {
-//     console.log("Connected to the printer");
-//     let encoder = new EscPosEncoder();
-
-//     let result = encoder
-//       .initialize()
-//       .text("salut")
-//       //   .image(
-//       //     await getImage(
-//       //       "https://res.cloudinary.com/dkbuiehgq/image/upload/v1713647319/samples/logo.jpg"
-//       //     ),
-//       //     640,
-//       //     640,
-//       //     "atkinson"
-//       //   )
-//       .newline()
-
-//       // .newline()
-//       // .newline()
-//       // .newline()
-//       // .newline()
-//       // .newline()
-//       .cut()
-//       .encode();
-
-//     client.write(result); // send data to the printer
-//     console.log("Send data to the printer");
-
-//     client.end(); // close the connection
-//   });
-
-//   console.log(socket);
-
-//   return Response.json("Printed");
-// }
