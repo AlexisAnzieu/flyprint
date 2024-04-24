@@ -26,7 +26,7 @@ export default function Home() {
       body: fd,
     }).then(async (res) => {
       const response: any = await res.json();
-      fetch(`/api/print?pictureUrl=${response.secure_url}`);
+      fetch(`http://70.81.36.26:9100/print?pictureUrl=${response.secure_url}`);
     });
   }
 

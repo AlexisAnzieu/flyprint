@@ -39,7 +39,7 @@ export async function GET(req: Request) {
   console.log("Created socket");
 
   await new Promise((resolve, reject) => {
-    client.connect(9100, "70.81.36.26", async function () {
+    client.connect(9100, "192.168.0.87", async function () {
       console.log("Connected to the printer");
       let encoder = new EscPosEncoder();
       const image = await getImage(pictureUrl);
