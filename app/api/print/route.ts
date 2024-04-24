@@ -9,7 +9,6 @@ const getImage = async (url: string) => {
   let imageBuffer = await response.arrayBuffer();
 
   let processedImageBuffer = await sharp(imageBuffer)
-    .jpeg({ quality: 30 })
     .resize(520, 800)
     .rotate(90)
     .toBuffer();
