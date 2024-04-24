@@ -42,7 +42,12 @@ export async function GET(req: Request) {
       console.log("Connected to the printer");
       let encoder = new EscPosEncoder();
 
-      let result = encoder.initialize().text("salut").newline().cut().encode();
+      let result = encoder
+        .initialize()
+        .image(await getImage(pictureUrl), 640, 640, "atkinson")
+        .newline()
+        .cut()
+        .encode();
 
       client.write(result, (err) => {
         // send data to the printer
@@ -96,14 +101,7 @@ export async function GET(req: Request) {
 //       //     "atkinson"
 //       //   )
 //       .newline()
-//       // .image(
-//       //   await getImage(
-//       //     "https://res.cloudinary.com/dkbuiehgq/image/upload/v1712880847/cockpit/05970730-8b01-4fe8-ae1b-e42fa334175e/image_w3h8xz.jpg"
-//       //   ),
-//       //   640,
-//       //   640,
-//       //   "atkinson"
-//       // )
+
 //       // .newline()
 //       // .newline()
 //       // .newline()
