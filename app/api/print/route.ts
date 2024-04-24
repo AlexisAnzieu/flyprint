@@ -9,7 +9,9 @@ const getImage = async (url: string) => {
   let imageBuffer = await response.arrayBuffer();
 
   let processedImageBuffer = await sharp(imageBuffer)
-    .resize(640, 640)
+    .jpeg({ quality: 30 })
+    .resize(520, 800)
+    .rotate(90)
     .toBuffer();
 
   let img = new Image();
@@ -41,10 +43,11 @@ export async function GET(req: Request) {
     client.connect(9100, "70.81.36.26", async function () {
       console.log("Connected to the printer");
       let encoder = new EscPosEncoder();
+      const image = await getImage(pictureUrl);
 
       let result = encoder
         .initialize()
-        .image(await getImage(pictureUrl), 640, 640, "atkinson")
+        .image(image, 520, 800, "atkinson")
         .newline()
         .cut()
         .encode();
