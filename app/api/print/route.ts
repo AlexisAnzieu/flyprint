@@ -67,24 +67,10 @@ export async function GET(req: Request) {
       .encode();
 
     client.write(result); // send data to the printer
+    console.log("Send data to the printer");
+
+    client.end(); // close the connection
   });
 
-  client.on("timeout", () => {
-    console.log("Socket timeout");
-    client.end(); // end the connection when timeout
-  });
-
-  client.on("data", function (data) {
-    console.log("Received: " + data);
-  });
-
-  client.on("close", function () {
-    console.log("Connection closed");
-  });
-
-  client.on("error", function (err) {
-    console.error("Error connecting to the printer:", err);
-  });
-
-  return Response.json("data: { success: true }");
+  return Response.json("Printed");
 }
