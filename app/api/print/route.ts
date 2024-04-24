@@ -35,43 +35,90 @@ export async function GET(req: Request) {
 
   const client = new net.Socket();
 
-  client.connect(9100, "70.81.36.26", async function () {
-    console.log("Connected to the printer");
-    let encoder = new EscPosEncoder();
+  console.log("Created socket");
 
-    let result = encoder
-      .initialize()
-      .text("salut")
-      //   .image(
-      //     await getImage(
-      //       "https://res.cloudinary.com/dkbuiehgq/image/upload/v1713647319/samples/logo.jpg"
-      //     ),
-      //     640,
-      //     640,
-      //     "atkinson"
-      //   )
-      .newline()
-      // .image(
-      //   await getImage(
-      //     "https://res.cloudinary.com/dkbuiehgq/image/upload/v1712880847/cockpit/05970730-8b01-4fe8-ae1b-e42fa334175e/image_w3h8xz.jpg"
-      //   ),
-      //   640,
-      //   640,
-      //   "atkinson"
-      // )
-      // .newline()
-      // .newline()
-      // .newline()
-      // .newline()
-      // .newline()
-      .cut()
-      .encode();
+  await new Promise((resolve, reject) => {
+    client.connect(9100, "70.81.36.26", async function () {
+      console.log("Connected to the printer");
+      let encoder = new EscPosEncoder();
 
-    client.write(result); // send data to the printer
-    console.log("Send data to the printer");
+      let result = encoder.initialize().text("salut").newline().cut().encode();
 
-    client.end(); // close the connection
+      client.write(result, (err) => {
+        // send data to the printer
+        if (err) {
+          reject(err);
+        } else {
+          console.log("Send data to the printer");
+          client.end(() => {
+            // close the connection
+            console.log("Connection closed");
+            resolve("done");
+          });
+        }
+      });
+    });
   });
+
+  console.log("Data sent and connection closed");
 
   return Response.json("Printed");
 }
+// export async function GET(req: Request) {
+//   noStore();
+
+//   console.log("Printing");
+
+//   const { searchParams } = new URL(req.url);
+//   const pictureUrl = searchParams.get("pictureUrl");
+
+//   if (!pictureUrl) {
+//     return Response.json({ error: "pictureUrl is required" });
+//   }
+
+//   const client = new net.Socket();
+
+//   console.log("Created socket");
+
+//   const socket = client.connect(9100, "70.81.36.26", async function () {
+//     console.log("Connected to the printer");
+//     let encoder = new EscPosEncoder();
+
+//     let result = encoder
+//       .initialize()
+//       .text("salut")
+//       //   .image(
+//       //     await getImage(
+//       //       "https://res.cloudinary.com/dkbuiehgq/image/upload/v1713647319/samples/logo.jpg"
+//       //     ),
+//       //     640,
+//       //     640,
+//       //     "atkinson"
+//       //   )
+//       .newline()
+//       // .image(
+//       //   await getImage(
+//       //     "https://res.cloudinary.com/dkbuiehgq/image/upload/v1712880847/cockpit/05970730-8b01-4fe8-ae1b-e42fa334175e/image_w3h8xz.jpg"
+//       //   ),
+//       //   640,
+//       //   640,
+//       //   "atkinson"
+//       // )
+//       // .newline()
+//       // .newline()
+//       // .newline()
+//       // .newline()
+//       // .newline()
+//       .cut()
+//       .encode();
+
+//     client.write(result); // send data to the printer
+//     console.log("Send data to the printer");
+
+//     client.end(); // close the connection
+//   });
+
+//   console.log(socket);
+
+//   return Response.json("Printed");
+// }
