@@ -3,9 +3,8 @@
 import React, { useRef } from "react";
 import { CLOUDINARY_FOLDER, cloudName, uploadPreset } from "@/lib/constants";
 
-export default function Home() {
+export default function Home({ params: { flyboothId } }: any) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const flyboothId = "flyprint";
 
   function createFormData(uploadPreset: string, file: File) {
     const fd = new FormData();
