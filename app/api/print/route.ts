@@ -52,19 +52,23 @@ export async function GET(req: Request) {
         .cut()
         .encode();
 
-      client.write(result, (err) => {
-        // send data to the printer
-        if (err) {
-          reject(err);
-        } else {
-          console.log("Send data to the printer");
-          client.end(() => {
-            // close the connection
-            console.log("Connection closed");
-            resolve("done");
-          });
-        }
-      });
+      // Write data to the printer
+      const isBufferFull = !client.write(result);
+
+      if (isBufferFull) {
+        console.log("Buffer full, waiting for drain event to write more data");
+        client.once("drain", doEnd);
+      } else {
+        doEnd();
+      }
+
+      function doEnd() {
+        client.end(() => {
+          // Close the connection
+          console.log("Connection closed");
+          resolve("done");
+        });
+      }
     });
   });
 
