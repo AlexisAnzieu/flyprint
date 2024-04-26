@@ -25,19 +25,31 @@ const getImage = async (url: string) => {
 export async function GET(req: Request) {
   noStore();
 
-  console.log("Printing");
+  try {
+    console.log("Printing");
 
-  const { searchParams } = new URL(req.url);
-  const pictureUrl = searchParams.get("pictureUrl");
+    const { searchParams } = new URL(req.url);
+    const pictureUrl = searchParams.get("pictureUrl");
 
-  if (!pictureUrl) {
-    return Response.json({ error: "pictureUrl is required" });
+    if (!pictureUrl) {
+      return Response.json({ error: "pictureUrl is required" });
+    }
+
+    const res = await fetch(
+      `http://70.81.36.26:9100/print?pictureUrl=${pictureUrl}`
+    );
+    const { error } = await res.json();
+    if (error) {
+      return Response.json({
+        error,
+      });
+    }
+
+    return Response.json(res);
+  } catch (error) {
+    return Response.json({ error: "Erreur sur l'API" });
   }
 
-  const res = await fetch(
-    `http://70.81.36.26:9100/print?pictureUrl=${pictureUrl}`
-  );
-  return Response.json(res);
   // const client = new net.Socket();
 
   // console.log("Created socket");

@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { CLOUDINARY_FOLDER, cloudName, uploadPreset } from "@/lib/constants";
 
 export default function Home({ params: { flyboothId } }: any) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | null>(null);
 
   function createFormData(uploadPreset: string, file: File) {
     const fd = new FormData();
@@ -20,17 +21,26 @@ export default function Home({ params: { flyboothId } }: any) {
     const url = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
     const fd = createFormData(uploadPreset, e.target.files![0]);
 
-    fetch(url, {
-      method: "POST",
-      body: fd,
-    }).then(async (res) => {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        body: fd,
+      });
       const response: any = await res.json();
-      fetch(`/api/print?pictureUrl=${response.secure_url}`);
-    });
+      const printRaw = await fetch(
+        `/api/print?pictureUrl=${response.secure_url}`
+      );
+      const printResponse = await printRaw.json();
+      if (printResponse.error) {
+        setError(printResponse.error);
+      }
+    } catch (error) {
+      setError("Erreur survenue lors de l'envoi de la photo");
+    }
   }
 
   return (
-    <main className="bg-black min-h-screen flex items-center justify-center">
+    <main className="bg-black min-h-screen flex items-center justify-center px-4 sm:px-0">
       <div className="flex flex-col items-center text-white">
         <input
           aria-label="File browser example"
@@ -43,11 +53,12 @@ export default function Home({ params: { flyboothId } }: any) {
         />
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="px-10 py-5 text-5xl bg-white text-black rounded-xl mb-10"
+          className="px-4 sm:px-10 py-3 sm:py-5 text-xl sm:text-5xl bg-white text-black rounded-xl mb-10"
         >
           Prend un selfie
         </button>
-        <div className="text-2xl">
+        {error && <div className="text-red-500">{error}</div>}
+        <div className="text-sm sm:text-2xl">
           (assure toi que la photo prise soit bien lumineuse)
         </div>
       </div>
