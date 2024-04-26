@@ -53,9 +53,9 @@ export default function Home({ params: { flyboothId } }: any) {
         />
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="px-4 sm:px-10 py-3 sm:py-5 text-xl sm:text-5xl bg-white text-black rounded-xl mb-10"
+          className="px-4 sm:px-10 py-3 sm:py-5 text-3xl sm:text-5xl bg-white text-black rounded-xl mb-10"
         >
-          Prend un selfie
+          Clique ici pour <br /> prendre une photo <br /> 📷
         </button>
         {error && <div className="text-red-500">{error}</div>}
         <div className="text-sm sm:text-2xl">
