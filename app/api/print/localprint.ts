@@ -5,7 +5,7 @@ import { Image } from "canvas";
 
 const PICTURE_WIDTH = 528;
 const PICTURE_HEIGHT = 712;
-const LOGO_WIDTH = 20;
+const LOGO_WIDTH = 200;
 const LOGO_HEIGHT = 200;
 const PRINTER_IP = "192.168.0.87";
 const PRINTER_PORT = 9100;
@@ -64,7 +64,7 @@ export const printImage = async (pictureUrl: string): Promise<any> => {
         .image(image, PICTURE_WIDTH, PICTURE_HEIGHT, "atkinson")
         .newline()
         .line(dateString)
-        .line("Le Plateau - Montreal")
+        .line("Ile d'orleans - Quebec")
         .newline()
         .newline()
         .newline()
