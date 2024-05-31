@@ -37,7 +37,7 @@ export const printImage = async (pictureUrl: string): Promise<any> => {
 
       const logo = await getImage({
         pictureUrl:
-          "https://res.cloudinary.com/dkbuiehgq/image/upload/v1713989859/session_1_zqo8jz.png",
+          "https://res.cloudinary.com/dkbuiehgq/image/upload/v1713989859/Nouveau_projet_zkjlrv.png",
         width: LOGO_WIDTH,
         height: LOGO_HEIGHT,
       });
