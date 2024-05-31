@@ -5,7 +5,7 @@ import { Image } from "canvas";
 
 const PICTURE_WIDTH = 528;
 const PICTURE_HEIGHT = 712;
-const LOGO_WIDTH = 200;
+const LOGO_WIDTH = 20;
 const LOGO_HEIGHT = 200;
 const PRINTER_IP = "192.168.0.87";
 const PRINTER_PORT = 9100;
@@ -37,7 +37,7 @@ export const printImage = async (pictureUrl: string): Promise<any> => {
 
       const logo = await getImage({
         pictureUrl:
-          "https://res.cloudinary.com/dkbuiehgq/image/upload/v1713989859/Nouveau_projet_zkjlrv.png",
+          "https://res.cloudinary.com/dkbuiehgq/image/upload/v1717169672/villa_raqceb.png",
         width: LOGO_WIDTH,
         height: LOGO_HEIGHT,
       });
