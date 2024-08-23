@@ -64,7 +64,7 @@ export const printImage = async (pictureUrl: string): Promise<any> => {
         .image(image, PICTURE_WIDTH, PICTURE_HEIGHT, "atkinson")
         .newline()
         .line(dateString)
-        .line("Ile d'orleans - Quebec")
+        .line("Le Plateau - Montreal")
         .newline()
         .newline()
         .newline()
