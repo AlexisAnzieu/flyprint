@@ -45,8 +45,8 @@ export default function Home({ params: { flyboothId } }: any) {
   }
 
   return (
-    <main className="bg-black min-h-screen flex items-center justify-center px-4 sm:px-0">
-      <div className="flex flex-col items-center text-white">
+    <main className="bg-black min-h-screen flex justify-center">
+      <div className="flex flex-col items-center text-white w-full">
         <input
           aria-label="File browser example"
           type="file"
@@ -56,21 +56,29 @@ export default function Home({ params: { flyboothId } }: any) {
           onChange={uploadFile}
           ref={fileInputRef}
         />
-        <button
+        <div
           onClick={() => !isLoading && fileInputRef.current?.click()}
-          className={`px-4 sm:px-10 py-3 sm:py-5 text-3xl sm:text-5xl rounded-xl mb-10 ${
+          className={`w-full flex items-center justify-center mb-10 cursor-pointer ${
             isLoading ? "bg-gray-500" : "bg-white"
           } text-black`}
-          disabled={isLoading}
+          style={{ height: "50vh" }}
         >
-          {isLoading
-            ? "En impression..."
-            : "Clique ici pour prendre une photo 📷"}
-        </button>
+          <span className="text-3xl sm:text-5xl text-center">
+            {isLoading
+              ? "En impression..."
+              : "Clique ici pour prendre une photo 📷"}
+          </span>
+        </div>
         {error && <div className="text-red-500 text-center pb-20">{error}</div>}
-        <div className=" text-xl sm:text-2xl text-center">
+        <div className="text-xl sm:text-2xl text-center">
           (assure toi que la photo prise soit bien lumineuse)
         </div>
+        <a
+          href="https://www.flybooth.app/fr/nath/gallery"
+          className="mt-10 px-8 py-4 bg-purple-500 text-white rounded-full"
+        >
+          Accède aux photos déjà prises
+        </a>
       </div>
     </main>
   );
