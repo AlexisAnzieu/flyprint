@@ -74,7 +74,7 @@ export default function Home({ params: { flyboothId } }: any) {
           (assure toi que la photo prise soit bien lumineuse)
         </div>
         <a
-          href="https://www.flybooth.app/fr/nath/gallery"
+          href={`https://www.flybooth.app/fr/${flyboothId}/gallery`}
           className="mt-10 px-8 py-4 bg-purple-500 text-white rounded-full"
         >
           Accède aux photos déjà prises
