@@ -22,7 +22,7 @@ export async function GET(req: Request) {
     }
 
     const res = await fetch(
-      `http://70.81.36.26:9100/print?pictureUrl=${pictureUrl}`
+      `https://printer.h2t.club/print?pictureUrl=${pictureUrl}`
     );
 
     const { error } = await res.json();
