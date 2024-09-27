@@ -1,14 +1,9 @@
 import { unstable_noStore as noStore } from "next/cache";
-import { printImage } from "./localprint";
-
-const IS_LOCAL = process.env.NODE_ENV === "development";
 
 export async function GET(req: Request) {
   noStore();
 
   try {
-    console.log("Printing");
-
     const { searchParams } = new URL(req.url);
     const pictureUrl = searchParams.get("pictureUrl");
 
@@ -16,26 +11,22 @@ export async function GET(req: Request) {
       return Response.json({ error: "pictureUrl is required" });
     }
 
-    if (IS_LOCAL) {
-      const res = await printImage(pictureUrl);
-      return Response.json(res);
-    }
-
     const res = await fetch(
       `https://printer.h2t.club/print?pictureUrl=${pictureUrl}`
     );
 
-    const { error } = await res.json();
-
-    if (error) {
-      return Response.json({
-        error,
-      });
+    if (res.status === 502) {
+      return Response.json({ error: "Printer server offline" });
     }
 
-    return Response.json(res);
+    const data = await res.json();
+
+    if (!res.ok) {
+      return Response.json({ error: data.message });
+    }
+
+    return Response.json(data.message);
   } catch (error) {
-    console.log(error);
-    return Response.json({ error: "Erreur sur l'API" });
+    return Response.json({ error: "Flyprint API error" });
   }
 }
