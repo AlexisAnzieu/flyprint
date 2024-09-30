@@ -1,4 +1,11 @@
 import { unstable_noStore as noStore } from "next/cache";
+import { Client } from "@upstash/qstash";
+
+const client = new Client({ token: process.env.QSTASH_TOKEN as string });
+
+const queue = client.queue({
+  queueName: "send-to-printer",
+});
 
 export async function GET(req: Request) {
   noStore();
@@ -11,22 +18,12 @@ export async function GET(req: Request) {
       return Response.json({ error: "pictureUrl is required" });
     }
 
-    const res = await fetch(
-      `https://printer.h2t.club/print?pictureUrl=${pictureUrl}`
-    );
-
-    if (res.status === 502) {
-      return Response.json({ error: "Printer server offline" });
-    }
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      return Response.json({ error: data.message });
-    }
-
-    return Response.json(data.message);
+    const res = await queue.enqueueJSON({
+      url: `https://printer.h2t.club/print?pictureUrl=${pictureUrl}`,
+      retries: 1,
+    });
+    return Response.json(res);
   } catch (error) {
-    return Response.json({ error: "Flyprint API error" });
+    return Response.json({ error: "Flyprint API error" + error });
   }
 }
