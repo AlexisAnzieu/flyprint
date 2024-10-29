@@ -18,8 +18,17 @@ export async function GET(req: Request) {
       return Response.json({ error: "pictureUrl is required" });
     }
 
+    const logoUrl = pictureUrl.replace(
+      /\/flybooth\/halloween\/.*/,
+      "/flybooth/halloween/admin/logo"
+    );
+
     const res = await queue.enqueueJSON({
-      url: `https://printer.h2t.club/print?pictureUrl=${pictureUrl}`,
+      url: "https://printer.h2t.club/print",
+      body: {
+        pictureUrl,
+        logoUrl,
+      },
       retries: 1,
     });
     return Response.json(res);
