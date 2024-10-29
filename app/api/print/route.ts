@@ -23,11 +23,33 @@ export async function GET(req: Request) {
       "/flybooth/halloween/admin/logo"
     );
 
+    const date = new Date();
+    const dateString = date.toLocaleString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    // const res = await fetch("http://printer.local:9100/print", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({
+    //     pictureUrl,
+    //     logoUrl,
+    //     texts: ["H2Terreur Nocturne", dateString],
+    //   }),
+    // });
+
     const res = await queue.enqueueJSON({
-      url: "https://printer.h2t.club/print",
+      url: "http://printer.h2t.club/print",
       body: {
         pictureUrl,
         logoUrl,
+        texts: ["H2Terreur Nocturne", " ", dateString],
       },
       retries: 1,
     });
