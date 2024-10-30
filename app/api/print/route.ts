@@ -34,14 +34,23 @@ export async function GET(req: Request) {
       minute: "2-digit",
     });
 
-    const texts = await prisma.text.findMany({
+    const flybooth = await prisma.flybooth.findUnique({
       where: {
-        flyboothId,
+        id: flyboothId,
       },
-      select: {
-        content: true,
+      include: {
+        texts: {
+          select: {
+            content: true,
+          },
+        },
       },
     });
+
+    if (flybooth?.hasTime) {
+      flybooth.texts.push({ content: "" });
+      flybooth.texts.push({ content: dateString });
+    }
 
     // const res = await fetch("http://printer.local:9100/print", {
     //   method: "POST",
@@ -60,7 +69,7 @@ export async function GET(req: Request) {
       body: {
         pictureUrl,
         logoUrl,
-        texts: texts.map((text) => text.content),
+        texts: flybooth?.texts.map((text) => text.content),
       },
       retries: 1,
     });

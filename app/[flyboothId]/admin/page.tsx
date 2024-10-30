@@ -13,24 +13,26 @@ export default function Home({ params: { flyboothId } }: any) {
   const [text, setText] = useState<string>("");
   const [textError, setTextError] = useState<string | null>(null);
   const [textLoading, setTextLoading] = useState<boolean>(false);
+  const [hasTime, setHasTime] = useState<boolean>(false);
 
   useEffect(() => {
-    async function fetchText() {
+    async function fetchFlybooth() {
       try {
-        const response = await fetch(`/api/text?flyboothId=${flyboothId}`);
+        const response = await fetch(`/api/flybooth?id=${flyboothId}`);
         if (!response.ok) {
           throw new Error("Erreur survenue lors de la récupération du texte");
         }
         const data = await response.json();
         if (data) {
-          setText(data.map((d: any) => d.content).join("\n"));
+          setText(data.texts.map((text: any) => text.content).join("\n"));
+          setHasTime(data.hasTime);
         }
       } catch (error) {
         setTextError("Erreur survenue lors de la récupération du texte");
       }
     }
 
-    fetchText();
+    fetchFlybooth();
   }, [flyboothId]);
 
   function createFormData(uploadPreset: string, file: File) {
@@ -69,12 +71,16 @@ export default function Home({ params: { flyboothId } }: any) {
     setTextError(null);
 
     try {
-      const response = await fetch("/api/text", {
+      const response = await fetch("/api/flybooth", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ flyboothId, texts: text.split("\n") }),
+        body: JSON.stringify({
+          id: flyboothId,
+          texts: text.split("\n"),
+          hasTime,
+        }),
       });
 
       if (!response.ok) {
@@ -132,6 +138,16 @@ export default function Home({ params: { flyboothId } }: any) {
             onChange={(e) => setText(e.target.value)}
             placeholder="Entrez votre texte ici..."
           />
+          <div className="flex items-center mt-4">
+            <input
+              type="checkbox"
+              id="addTime"
+              checked={hasTime}
+              onChange={(e) => setHasTime(e.target.checked)}
+              className="mr-2"
+            />
+            <label htmlFor="addTime">{"Ajouter l'heure"}</label>
+          </div>
           <button
             onClick={sendText}
             className={`mt-4 p-4 rounded-xl ${
@@ -139,7 +155,7 @@ export default function Home({ params: { flyboothId } }: any) {
             } text-white`}
             disabled={textLoading}
           >
-            {textLoading ? "Envoie en cours..." : "Envoyer le texte"}
+            {textLoading ? "Envoi en cours..." : "Mettre à jour"}
           </button>
           {textError && (
             <div className="text-red-500 text-center mt-4">{textError}</div>
