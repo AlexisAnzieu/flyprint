@@ -89,7 +89,7 @@ export default function Home({ params: { flyboothId } }: any) {
 
   return (
     <main className="min-h-screen flex justify-center items-center">
-      <div className="flex flex-col items-center text-white w-full max-w-xl space-y-10">
+      <div className="flex flex-col items-center text-white w-full max-w-sm space-y-10">
         <div className="flex flex-col items-center bg-gray-800 p-6 rounded-xl w-full">
           <input
             aria-label="File browser example"

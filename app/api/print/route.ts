@@ -1,5 +1,6 @@
 import { unstable_noStore as noStore } from "next/cache";
 import { Client } from "@upstash/qstash";
+import prisma from "@/prisma/db";
 
 const client = new Client({ token: process.env.QSTASH_TOKEN as string });
 
@@ -13,9 +14,10 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const pictureUrl = searchParams.get("pictureUrl");
+    const flyboothId = searchParams.get("flyboothId");
 
-    if (!pictureUrl) {
-      return Response.json({ error: "pictureUrl is required" });
+    if (!pictureUrl || !flyboothId) {
+      return Response.json({ error: "pictureUrl & flyboothId are required" });
     }
 
     const logoUrl = pictureUrl.replace(
@@ -30,6 +32,15 @@ export async function GET(req: Request) {
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
+    });
+
+    const texts = await prisma.text.findMany({
+      where: {
+        flyboothId,
+      },
+      select: {
+        content: true,
+      },
     });
 
     // const res = await fetch("http://printer.local:9100/print", {
@@ -49,7 +60,7 @@ export async function GET(req: Request) {
       body: {
         pictureUrl,
         logoUrl,
-        texts: ["H2Terreur Nocturne", " ", dateString],
+        texts: texts.map((text) => text.content),
       },
       retries: 1,
     });

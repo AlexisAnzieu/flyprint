@@ -31,7 +31,7 @@ export default function Home({ params: { flyboothId } }: any) {
       });
       const response: any = await res.json();
       const printRaw = await fetch(
-        `/api/print?pictureUrl=${response.secure_url}`
+        `/api/print?pictureUrl=${response.secure_url}&flyboothId=${flyboothId}`
       );
       const printResponse = await printRaw.json();
       if (printResponse.error) {
