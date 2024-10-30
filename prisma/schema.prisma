@@ -1,0 +1,26 @@
+// schema.prisma
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Text {
+    id         String    @id @default(cuid())
+    content    String?
+    flybooth   Flybooth? @relation(fields: [flyboothId], references: [id])
+    flyboothId String?
+    createdAt  DateTime  @default(now()) @map(name: "created_at")
+    updatedAt  DateTime  @updatedAt @map(name: "updated_at")
+}
+
+model Flybooth {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now()) @map(name: "created_at")
+    updatedAt DateTime @updatedAt @map(name: "updated_at")
+    texts     Text[]
+}
