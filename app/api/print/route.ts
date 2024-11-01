@@ -1,12 +1,6 @@
 import { unstable_noStore as noStore } from "next/cache";
-import { Client } from "@upstash/qstash";
 import prisma from "@/prisma/db";
-
-const client = new Client({ token: process.env.QSTASH_TOKEN as string });
-
-const queue = client.queue({
-  queueName: "send-to-printer",
-});
+import { queue } from "@/lib/queue";
 
 export async function GET(req: Request) {
   noStore();
