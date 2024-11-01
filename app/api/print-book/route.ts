@@ -39,7 +39,7 @@ export async function GET(req: Request) {
     //   },
     //   retries: 1,
     // });
-    return Response.json(res);
+    return Response.json("C'est dans la boite !");
   } catch (error) {
     return Response.json({ error: "Flyprint API error" + error });
   }
