@@ -15,8 +15,8 @@ export async function GET(req: Request) {
     }
 
     const logoUrl = pictureUrl.replace(
-      /\/flybooth\/halloween\/.*/,
-      "/flybooth/halloween/admin/logo"
+      /\/flybooth\/[^\/]+\/.*/,
+      `/flybooth/${flyboothId}/admin/logo`
     );
 
     const date = new Date();
