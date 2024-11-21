@@ -93,6 +93,24 @@ export default function Home({ params: { flyboothId } }: any) {
     }
   }
 
+  async function printQRCode() {
+    try {
+      const response = await fetch("/api/print", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: `https://print.h2t.club/${flyboothId}/` }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erreur survenue lors de l'impression du QR code");
+      }
+    } catch (error: any) {
+      console.error("Printing error:", error.message);
+    }
+  }
+
   return (
     <main className="min-h-screen flex justify-center items-center">
       <div className="flex flex-col items-center text-white w-full max-w-sm space-y-10">
@@ -161,6 +179,12 @@ export default function Home({ params: { flyboothId } }: any) {
             <div className="text-red-500 text-center mt-4">{textError}</div>
           )}
         </div>
+        <button
+          onClick={printQRCode}
+          className="mt-4 p-4 rounded-xl bg-purple-500 text-white"
+        >
+          Imprimer le QR code
+        </button>
       </div>
     </main>
   );

@@ -1,6 +1,8 @@
 import { unstable_noStore as noStore } from "next/cache";
 import prisma from "@/prisma/db";
 import { queue } from "@/lib/queue";
+import { NextResponse } from "next/server";
+import EscPosEncoder from "esc-pos-encoder";
 
 export async function GET(req: Request) {
   noStore();
@@ -46,18 +48,6 @@ export async function GET(req: Request) {
       flybooth.texts.push({ content: dateString });
     }
 
-    // const res = await fetch("http://printer.local:9100/print", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify({
-    //     pictureUrl,
-    //     logoUrl,
-    //     texts: ["H2Terreur Nocturne", dateString],
-    //   }),
-    // });
-
     const res = await queue.enqueueJSON({
       url: "http://printer.h2t.club/print",
       body: {
@@ -70,5 +60,49 @@ export async function GET(req: Request) {
     return Response.json(res);
   } catch (error) {
     return Response.json({ error: "Flyprint API error" + error });
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const { text } = await request.json();
+
+    const encoder = new EscPosEncoder();
+
+    encoder
+      .initialize()
+      .align("center")
+      .qrcode(text, 2, 8, "h")
+      .newline()
+      .newline()
+      .text(text)
+      .newline()
+      .newline()
+      .newline()
+      .newline()
+      .newline()
+      .newline()
+      .cut();
+
+    const printData = encoder.encode();
+    const printerResponse = await fetch("https://printer.h2t.club/raw-print", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/octet-stream",
+      },
+      body: printData,
+    });
+
+    if (!printerResponse.ok) {
+      throw new Error(`Printer error! status: ${printerResponse.status}`);
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Printing error:", error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Unknown error" },
+      { status: 500 }
+    );
   }
 }

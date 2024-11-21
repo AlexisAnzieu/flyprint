@@ -17,7 +17,7 @@
     "@upstash/qstash": "^2.7.10",
     "canvas": "^2.11.2",
     "dotenv-cli": "^7.4.2",
-    "esc-pos-encoder": "^2.0.1",
+    "esc-pos-encoder": "^2.1.0",
     "net": "^1.0.2",
     "next": "14.2.2",
     "react": "^18",
