@@ -10,7 +10,7 @@ interface SaladOrder {
   name: string;
   base: string;
   toppings: string[];
-  protein: string;
+  proteins: string[];
   dressing: string;
 }
 
@@ -51,12 +51,13 @@ export async function POST(request: Request) {
       printer.text(`  ${topping}`).newline();
     });
 
+    printer.newline().text("Protéines:").newline();
+
+    order.proteins.forEach((protein) => {
+      printer.text(`  ${protein}`).newline();
+    });
+
     printer
-      .newline()
-      .text("Protéine:")
-      .newline()
-      .text(`  ${order.protein}`)
-      .newline()
       .newline()
       .text("Sauce:")
       .newline()

@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 
 interface SaladOrder {
   name: string;
   base: string;
   toppings: string[];
-  protein: string;
+  proteins: string[];
   dressing: string;
 }
 
@@ -15,27 +15,43 @@ export default function DataResto() {
     name: "",
     base: "",
     toppings: [],
-    protein: "",
+    proteins: [],
     dressing: "",
   });
 
-  const bases = ["Laitue Romaine", "Épinards", "Mesclun", "Roquette"];
+  const bases = ["Riz sushis", "Riz sushis avec feuille d'algue", "Aucune "];
   const toppingOptions = [
-    "Tomates cerises",
-    "Concombre",
-    "Carottes râpées",
-    "Oignons rouges",
     "Avocat",
-    "Maïs",
-    "Olives",
+    "Carotte râpée",
+    "Champignons",
+    "Concombre râpé",
+    "Coriandre",
+    "Edamame",
+    "Germes de Luzerne",
+    "Gingembre",
+    "Graines de sésame",
+    "Graines de tournesol",
+    "Oignons à l'hibiscus",
+    "Oignons verts",
     "Poivrons",
+    "Romarin",
   ];
-  const proteins = ["Poulet grillé", "Saumon", "Tofu", "Oeufs durs", "Thon"];
+  const proteins = [
+    "Crabe",
+    "Crevettes Végétariennes",
+    "Saumon Fumé",
+    "Thon cuit",
+  ];
   const dressings = [
-    "Vinaigrette Balsamique",
-    "Ranch",
-    "César",
-    "Huile olive citron",
+    "Huile olive à la truffe",
+    "Huile olive",
+    "Sauce Mirin sucrée",
+    "Sauce Soja",
+    "Sauce Tamari",
+    "Vinaigre balsamique",
+    "Vinaigre de framboise",
+    "Vinaigre de riz",
+    "Vinaigre de vin rouge",
   ];
 
   const handleToppingChange = (topping: string) => {
@@ -46,6 +62,29 @@ export default function DataResto() {
         : [...prev.toppings, topping],
     }));
   };
+
+  const handleProteinChange = (protein: string) => {
+    setOrder((prev) => ({
+      ...prev,
+      proteins: prev.proteins.includes(protein)
+        ? prev.proteins.filter((p) => p !== protein)
+        : [...prev.proteins, protein],
+    }));
+  };
+
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    isError: boolean;
+    message: string;
+  }>({
+    isOpen: false,
+    isError: false,
+    message: "",
+  });
+
+  const closeModal = useCallback(() => {
+    setModalState((prev) => ({ ...prev, isOpen: false }));
+  }, []);
 
   const handlePrint = async () => {
     try {
@@ -61,9 +100,18 @@ export default function DataResto() {
         throw new Error("Erreur impression");
       }
 
-      alert("Commande envoyée à l'impression!");
+      setModalState({
+        isOpen: true,
+        isError: false,
+        message:
+          "SELECT status FROM orders WHERE id = LAST_INSERT_ID(); -- SUCCESS",
+      });
     } catch (error) {
-      alert("Erreur lors de l'impression");
+      setModalState({
+        isOpen: true,
+        isError: true,
+        message: "ROLLBACK; -- Error: Failed to print order",
+      });
       console.error(error);
     }
   };
@@ -72,17 +120,17 @@ export default function DataResto() {
     return (
       order.name &&
       order.base &&
-      order.protein &&
+      order.proteins.length > 0 &&
       order.dressing &&
       order.toppings.length > 0
     );
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 py-4 px-2 font-mono text-green-500">
+    <div className="relative min-h-screen bg-gray-900 py-4 px-2 font-mono text-green-500">
       <div className="max-w-xl mx-auto bg-gray-800 rounded-lg shadow-lg p-4">
         <h1 className="text-2xl font-bold mb-6 text-center">
-          INSERT INTO salad_orders
+          INSERT INTO salad_bowl
         </h1>
 
         {/* Name Input */}
@@ -150,13 +198,13 @@ export default function DataResto() {
           <h2 className="text-lg font-semibold mb-3">
             SELECT protein FROM ingredients WHERE type = &apos;protein&apos;
           </h2>
-          <div className="grid grid-cols-1 gap-2">
+          <div className="grid grid-cols-2 gap-2">
             {proteins.map((protein) => (
               <button
                 key={protein}
-                onClick={() => setOrder((prev) => ({ ...prev, protein }))}
+                onClick={() => handleProteinChange(protein)}
                 className={`p-3 rounded border ${
-                  order.protein === protein
+                  order.proteins.includes(protein)
                     ? "bg-green-500 text-gray-900 border-green-600"
                     : "bg-gray-700 border-green-500 hover:bg-gray-600"
                 }`}
@@ -203,6 +251,31 @@ export default function DataResto() {
             COMMIT TRANSACTION;
           </button>
         </section>
+
+        {/* Modal */}
+        {modalState.isOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+            <div className="bg-gray-800 border-2 border-green-500 rounded-lg p-6 w-full max-w-md">
+              <div className="flex flex-col items-center">
+                <div className="w-full mb-4">
+                  <pre
+                    className={`whitespace-pre-wrap break-words ${
+                      modalState.isError ? "text-red-500" : "text-green-500"
+                    }`}
+                  >
+                    {modalState.message}
+                  </pre>
+                </div>
+                <button
+                  onClick={closeModal}
+                  className="mt-4 px-6 py-2 bg-gray-700 border border-green-500 rounded hover:bg-gray-600 text-green-500"
+                >
+                  EXIT;
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
