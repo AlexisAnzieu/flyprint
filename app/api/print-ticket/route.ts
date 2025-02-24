@@ -6,81 +6,74 @@ function createLine(char: string, length: number) {
   return char.repeat(length);
 }
 
-export async function GET(request: Request) {
+interface SaladOrder {
+  name: string;
+  base: string;
+  toppings: string[];
+  protein: string;
+  dressing: string;
+}
+
+export async function POST(request: Request) {
   try {
+    const order: SaladOrder = await request.json();
     const printer = new EscPosEncoder();
+
     // Header
     printer
       .align("center")
-      .text("L'ATHLETE AFFAME")
+      .text("LA FABRIQUE À SALADES")
       .newline()
-      .text("123 RUE STANLEY")
+      .text("Montreal, Quebec")
       .newline()
-      .text("Montreal, Quebec H2T H2T")
+      .text(createLine("=", 45))
       .newline()
-      .text("(514) 555-MOVE")
-      .newline()
-      .newline()
-      .text("** RECU D'ENTRAINEMENT SPECIAL **")
-      .newline();
-
-    // Server and table info
-    printer
       .align("left")
-      .text("Entraineur: Le Pro".padEnd(30) + "Zone: Elite")
       .newline()
-      .text("Station: Performance".padEnd(30) + "Athletes: Full")
-      .newline()
-      .text("Fete de Jonathann - Champion du Jour")
-      .newline()
-      .text(createLine("-", 45))
-      .newline();
-
-    // Order items with fitness puns
-    printer
-      .text("1 Bol du Marathonien".padEnd(35) + "0.00$")
-      .newline()
-      .text("2 Special du Sprinteur".padEnd(35) + "0.00$")
-      .newline()
-      .text("1 Burger de la Performance".padEnd(35) + "0.00$")
-      .newline()
-      .text("3 Shake Energie Pure".padEnd(35) + "0.00$")
-      .newline()
-      .text("2 Bol de l'Athlete".padEnd(35) + "0.00$")
-      .newline()
-      .text("1 Power Pack CrossFit".padEnd(35) + "0.00$")
-      .newline()
-      .newline();
-
-    // Totals
-    printer
-      .text("Sous-total:".padEnd(35) + "0.00$")
-      .newline()
-      .text("TPS 5%:".padEnd(35) + "0.00$")
-      .newline()
-      .text("TVQ 9.975%:".padEnd(35) + "0.00$")
+      .text("VOTRE SALADE PERSONNALISÉE")
       .newline()
       .text(createLine("-", 45))
       .newline()
-      .text("TOTAL:".padEnd(35) + "GRATUIT!")
+      .text("Client:")
       .newline()
-      .text(createLine("*", 45))
+      .text(`  ${order.name}`)
       .newline()
+      .newline()
+      .text("Base:")
+      .newline()
+      .text(`  ${order.base}`)
+      .newline()
+      .newline()
+      .text("Garnitures:")
       .newline();
 
-    // Footer
+    order.toppings.forEach((topping) => {
+      printer.text(`  ${topping}`).newline();
+    });
+
     printer
+      .newline()
+      .text("Protéine:")
+      .newline()
+      .text(`  ${order.protein}`)
+      .newline()
+      .newline()
+      .text("Sauce:")
+      .newline()
+      .text(`  ${order.dressing}`)
+      .newline()
+      .text(createLine("-", 45))
+      .newline()
+      .newline()
       .newline()
       .align("center")
-      .text("Ceci est un bon pour un resto")
-      .newline()
-      .text("en ma compagnie")
-      .newline()
-      .text("A la date de ton choix")
-      .newline()
-      .newline()
-      .newline()
-      .text(new Date().toLocaleString("fr-CA"))
+      .text(
+        new Date().toLocaleString("fr-CA", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        })
+      )
       .newline()
       .newline()
       .newline()
