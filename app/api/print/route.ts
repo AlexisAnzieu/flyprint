@@ -3,11 +3,13 @@ import prisma from "@/prisma/db";
 import { queue } from "@/lib/queue";
 import { NextResponse } from "next/server";
 import EscPosEncoder from "esc-pos-encoder";
+import { isPrintQueueEnabled } from "@/flags";
 
 export async function GET(req: Request) {
   noStore();
 
   try {
+    const isPrintQueueEnabledValue = await isPrintQueueEnabled();
     const { searchParams } = new URL(req.url);
     const pictureUrl = searchParams.get("pictureUrl");
     const flyboothId = searchParams.get("flyboothId");
@@ -48,15 +50,23 @@ export async function GET(req: Request) {
       flybooth.texts.push({ content: dateString });
     }
 
-    const res = await queue.enqueueJSON({
-      url: "http://printer.h2t.club/print",
-      body: {
-        pictureUrl,
-        logoUrl,
-        texts: flybooth?.texts.map((text) => text.content),
-      },
-      retries: 1,
-    });
+    const printData = {
+      pictureUrl,
+      logoUrl,
+      texts: flybooth?.texts.map((text) => text.content),
+    };
+
+    const res = await (isPrintQueueEnabledValue
+      ? queue.enqueueJSON({
+          url: "http://printer.h2t.club/print",
+          body: printData,
+          retries: 1,
+        })
+      : fetch("http://printer.h2t.club/print", {
+          method: "POST",
+          body: JSON.stringify(printData),
+        }).then((r) => r.json()));
+
     return Response.json(res);
   } catch (error) {
     return Response.json({ error: "Flyprint API error" + error });
