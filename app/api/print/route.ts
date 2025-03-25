@@ -4,12 +4,15 @@ import { queue } from "@/lib/queue";
 import { NextResponse } from "next/server";
 import EscPosEncoder from "esc-pos-encoder";
 import { isPrintQueueEnabled } from "@/flags";
+import { reportValue } from "flags";
 
 export async function GET(req: Request) {
   noStore();
 
   try {
     const isPrintQueueEnabledValue = await isPrintQueueEnabled();
+    reportValue("print-queue-flag", isPrintQueueEnabledValue);
+
     const { searchParams } = new URL(req.url);
     const pictureUrl = searchParams.get("pictureUrl");
     const flyboothId = searchParams.get("flyboothId");
