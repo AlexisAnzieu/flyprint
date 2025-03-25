@@ -11,7 +11,7 @@ export async function GET(req: Request) {
 
   try {
     const isPrintQueueEnabledValue = await isPrintQueueEnabled();
-    reportValue("print-queue-flag", isPrintQueueEnabledValue);
+    reportValue("is-print-queue-enabled", isPrintQueueEnabledValue);
 
     const { searchParams } = new URL(req.url);
     const pictureUrl = searchParams.get("pictureUrl");
