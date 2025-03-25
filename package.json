@@ -16,6 +16,7 @@
     "@prisma/client": "^5.21.1",
     "@upstash/qstash": "^2.7.10",
     "@vercel/analytics": "^1.5.0",
+    "@vercel/toolbar": "^0.1.35",
     "canvas": "^2.11.2",
     "dotenv-cli": "^7.4.2",
     "esc-pos-encoder": "^2.1.0",
