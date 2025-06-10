@@ -14,7 +14,7 @@ export async function GET(req: Request) {
     booksJson.forEach((book: any) => {
       texts.push(`${book.title}, par ${book.author}`);
       texts.push(book.summary);
-      texts.push("");
+      texts.push("---");
     });
 
     const res = await queue.enqueueJSON({
