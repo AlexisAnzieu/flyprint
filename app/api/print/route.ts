@@ -63,10 +63,17 @@ export async function GET(req: Request) {
       ? queue.enqueueJSON({
           url: "http://printer.h2t.club/print",
           body: printData,
+          headers: {
+            "Content-Type": "application/json",
+          },
           retries: 1,
+          transform: (data: any) => JSON.stringify(data),
         })
       : fetch("http://printer.h2t.club/print", {
           method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify(printData),
         }).then((r) => r.json()));
 
