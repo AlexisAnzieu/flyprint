@@ -100,7 +100,7 @@ export default function Home({ params: { flyboothId } }: any) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ text: `https://print.h2t.club/${flyboothId}/` }),
+        body: JSON.stringify({ text: `https://print.flybooth.app/${flyboothId}/` }),
       });
 
       if (!response.ok) {
