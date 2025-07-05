@@ -61,7 +61,7 @@ export async function GET(req: Request) {
 
     const res = await (isPrintQueueEnabledValue
       ? queue.enqueueJSON({
-          url: "http://printer.h2t.club/print",
+          url: `${process.env.PRINTER_URL as string}/print`,
           body: printData,
           headers: {
             "Content-Type": "application/json",
@@ -69,7 +69,7 @@ export async function GET(req: Request) {
           retries: 1,
           transform: (data: any) => JSON.stringify(data),
         })
-      : fetch("http://printer.h2t.club/print", {
+      : fetch(`${process.env.PRINTER_URL as string}/print`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -105,13 +105,16 @@ export async function POST(request: Request) {
       .cut();
 
     const printData = encoder.encode();
-    const printerResponse = await fetch("https://printer.h2t.club/raw-print", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/octet-stream",
-      },
-      body: printData,
-    });
+    const printerResponse = await fetch(
+      `${process.env.PRINTER_URL as string}/raw-print`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/octet-stream",
+        },
+        body: printData,
+      }
+    );
 
     if (!printerResponse.ok) {
       throw new Error(`Printer error! status: ${printerResponse.status}`);

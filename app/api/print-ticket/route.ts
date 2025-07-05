@@ -86,13 +86,16 @@ export async function POST(request: Request) {
     // Generate the ESC/POS commands
     const result = printer.encode();
 
-    const printerResponse = await fetch("https://printer.h2t.club/raw-print", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/octet-stream",
-      },
-      body: result,
-    });
+    const printerResponse = await fetch(
+      `${process.env.PRINTER_URL as string}/raw-print`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/octet-stream",
+        },
+        body: result,
+      }
+    );
 
     if (!printerResponse.ok) {
       throw new Error(`Printer error! status: ${printerResponse.status}`);
