@@ -35,30 +35,32 @@ export default function Home({ params: { flyboothId } }: any) {
     fetchFlybooth();
   }, [flyboothId]);
 
-  function createFormData(uploadPreset: string, file: File) {
-    const fd = new FormData();
-    fd.append("folder", `${CLOUDINARY_FOLDER}/${flyboothId}/admin`);
-    fd.append("upload_preset", uploadPreset);
-    fd.append("file", file);
-    fd.append("public_id", "logo");
-    return fd;
-  }
-
   async function uploadFile(e: React.ChangeEvent<HTMLInputElement>) {
     setIsLoading(true);
+    setError(null);
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      setIsLoading(false);
+      return;
+    }
 
     try {
-      const url = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
-      const fd = createFormData(uploadPreset, e.target.files![0]);
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("sessionId", flyboothId);
 
-      const res = await fetch(url, {
+      const res = await fetch("/api/upload-logo", {
         method: "POST",
         body: fd,
       });
       const response: any = await res.json();
-      setUploadedImageUrl(response.secure_url);
+      if (res.ok && response.secure_url) {
+        setUploadedImageUrl(response.secure_url);
+      } else {
+        setError(
+          response.error || "Erreur survenue lors de l'envoi de la photo"
+        );
+      }
     } catch (error) {
       setError("Erreur survenue lors de l'envoi de la photo");
     } finally {
@@ -100,7 +102,9 @@ export default function Home({ params: { flyboothId } }: any) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ text: `https://print.flybooth.app/${flyboothId}/` }),
+        body: JSON.stringify({
+          text: `https://print.flybooth.app/${flyboothId}/`,
+        }),
       });
 
       if (!response.ok) {
