@@ -4,6 +4,7 @@ export async function GET() {
   try {
     const res = await fetch(`${process.env.PRINTER_URL as string}`, {
       method: "GET",
+      cache: "no-store",
     });
     if (res.status === 200) {
       return NextResponse.json({ connected: true });
