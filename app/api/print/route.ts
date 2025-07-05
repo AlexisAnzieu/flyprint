@@ -10,7 +10,7 @@ export async function GET(req: Request) {
   noStore();
 
   try {
-    const isPrintQueueEnabledValue = false;
+    const isPrintQueueEnabledValue = await isPrintQueueEnabled();
     reportValue("is-print-queue-enabled", isPrintQueueEnabledValue);
 
     const { searchParams } = new URL(req.url);
