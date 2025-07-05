@@ -1,3 +1,55 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  .safe-area-pt {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  
+  .gradient-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 
+           active:from-purple-800 active:to-blue-800 text-white rounded-2xl transition-all 
+           duration-300 text-lg font-medium shadow-lg hover:shadow-xl 
+           active:scale-98 touch-manipulation transform hover:-translate-y-0.5;
+  }
+  
+  .capture-area {
+    @apply w-full flex items-center justify-center rounded-3xl 
+           transition-all duration-300 touch-manipulation relative overflow-hidden;
+  }
+  
+  .capture-area::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-br from-white/90 to-gray-100/90 opacity-0 transition-opacity duration-300;
+  }
+  
+  .capture-area:hover::before {
+    @apply opacity-100;
+  }
+  
+  .error-card {
+    @apply text-red-400 text-center py-4 px-6 bg-red-500/10 rounded-2xl mb-6 
+           border border-red-500/20 backdrop-blur-sm animate-fade-in;
+  }
+}

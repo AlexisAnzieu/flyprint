@@ -50,8 +50,12 @@ export default function Home({ params: { flyboothId } }: any) {
   }
 
   return (
-    <main className="bg-black min-h-screen flex justify-center safe-area-pt">
-      <div className="flex flex-col items-center text-white w-full max-w-lg mx-auto px-4 py-6">
+    <main className="bg-gradient-to-br from-gray-950 via-purple-950/50 to-gray-950 min-h-screen flex justify-center safe-area-pt relative overflow-hidden">
+      {/* Background effects */}
+      <div className="absolute inset-0 bg-gradient-mesh opacity-20"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.3),transparent)] animate-pulse-slow"></div>
+
+      <div className="relative z-10 flex flex-col items-center text-white w-full max-w-lg mx-auto px-6 py-8">
         <input
           aria-label="File browser example"
           type="file"
@@ -61,38 +65,74 @@ export default function Home({ params: { flyboothId } }: any) {
           onChange={uploadFile}
           ref={fileInputRef}
         />
+
+        {/* Header */}
+        <div className="text-center mb-8 animate-fade-in">
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">📸 Flybooth</h1>
+          <p className="text-gray-300 text-lg">Capture l&apos;éphémère</p>
+        </div>
+
+        {/* Main capture area */}
         <div
           onClick={() => !isLoading && fileInputRef.current?.click()}
-          className={`w-full flex items-center justify-center mb-8 rounded-2xl 
-            transition-colors duration-200 active:scale-98 touch-manipulation
-            ${isLoading ? "bg-gray-600" : "bg-white"} text-black
-            shadow-lg hover:shadow-xl`}
-          style={{ height: "60vh", minHeight: "320px" }}
+          className={`capture-area mb-8 shadow-2xl transform transition-all duration-300 hover:scale-[1.02] hover:shadow-purple-500/20 h-[60vh] min-h-[350px]
+            ${
+              isLoading
+                ? "bg-gradient-to-br from-gray-700 to-gray-800 cursor-not-allowed"
+                : "bg-gradient-to-br from-white via-gray-50 to-white cursor-pointer hover:from-purple-50 hover:to-blue-50"
+            } text-black border-2 border-white/20`}
         >
-          <span className="text-2xl md:text-4xl text-center px-6 font-medium">
-            {isLoading
-              ? "En impression... ⏳"
-              : "Appuie ici pour prendre une photo 📸"}
-          </span>
+          {isLoading && (
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
+          )}
+
+          <div className="relative z-10 flex flex-col items-center justify-center h-full px-8">
+            <div
+              className={`text-6xl mb-4 ${
+                isLoading ? "animate-bounce-gentle" : "animate-pulse"
+              }`}
+            >
+              {isLoading ? "⏳" : "📸"}
+            </div>
+            <span className="text-2xl md:text-3xl text-center font-bold leading-tight text-shadow">
+              {isLoading
+                ? "Traitement de ton chef-d'œuvre..."
+                : "Appuie ici pour le selfie"}
+            </span>
+            {!isLoading && (
+              <div className="mt-4 text-lg text-gray-600 animate-bounce-gentle">
+                ✨ Prêt quand tu l&apos;es !
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* Error display */}
         {error && (
-          <div className="text-red-500 text-center py-4 px-6 bg-red-500/10 rounded-lg mb-6 animate-fade-in">
-            {error}
+          <div className="error-card w-full max-w-md">
+            <div className="flex items-center justify-center mb-2">
+              <span className="text-2xl mr-2">⚠️</span>
+              <span className="font-semibold">Oups !</span>
+            </div>
+            <p className="text-sm">{error}</p>
           </div>
         )}
-        <div className="text-lg md:text-xl text-center text-gray-300 px-6">
-          Pour un meilleur résultat, prends ta photo dans un endroit bien
-          éclairé
+
+        {/* Tips section */}
+        <div className="glass-effect rounded-2xl p-6 mb-8 w-full max-w-md animate-slide-up">
+          <div className="flex items-start space-x-3">
+            <span className="text-2xl">💡</span>
+            <div>
+              <h3 className="font-semibold mb-2 text-yellow-300">
+                Conseils Pro
+              </h3>
+              <p className="text-sm text-gray-300 leading-relaxed">
+                Pour de meilleurs résultats, trouve un endroit bien éclairé et
+                tiens ton appareil bien stable!
+              </p>
+            </div>
+          </div>
         </div>
-        <a
-          href={`https://www.flybooth.app/fr/${flyboothId}/gallery`}
-          className="mt-8 px-8 py-4 bg-purple-600 hover:bg-purple-700 
-            active:bg-purple-800 text-white rounded-full transition-colors 
-            duration-200 text-lg font-medium shadow-lg hover:shadow-xl 
-            active:scale-98 touch-manipulation"
-        >
-          Voir toutes les photos
-        </a>
       </div>
     </main>
   );
