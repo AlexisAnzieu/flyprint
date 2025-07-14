@@ -33,6 +33,7 @@ export async function GET(req: Request) {
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
+      timeZone: "America/Montreal",
     });
 
     const flybooth = await prisma.flybooth.findUnique({
