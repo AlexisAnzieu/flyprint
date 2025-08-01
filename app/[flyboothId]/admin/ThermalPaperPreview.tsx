@@ -152,15 +152,19 @@ const ThermalPaperPreview: React.FC<Props> = ({
         img.crossOrigin = "Anonymous";
 
         img.onload = () => {
+          // Define top and bottom margins (in pixels) to simulate newlines
+          const IMAGE_TOP_MARGIN = 30;
+          const IMAGE_BOTTOM_MARGIN = 30;
+
           // Use dynamic logo dimensions from props
           const logoW = logoWidth;
           const logoH = logoHeight;
 
-          // Center logo within printable area
+          // Center logo within printable area, apply top margin
           const logoX =
             THERMAL_SPECS.MARGIN_PX +
             (THERMAL_SPECS.PRINT_WIDTH_PX - logoW) / 2;
-          const logoY = 30;
+          const logoY = IMAGE_TOP_MARGIN;
 
           // Draw image with dynamic dimensions (thermal printer will scale accordingly)
           ctx.drawImage(img, logoX, logoY, logoW, logoH);
@@ -182,8 +186,8 @@ const ThermalPaperPreview: React.FC<Props> = ({
           logoData = atkinsonDither(logoData);
           ctx.putImageData(logoData, logoX, logoY);
 
-          // Add sample thermal content directly below the logo (no extra space)
-          addSampleContent(ctx, logoY + logoH);
+          // Add sample thermal content directly below the logo plus bottom margin
+          addSampleContent(ctx, logoY + logoH + IMAGE_BOTTOM_MARGIN);
         };
 
         img.onerror = () => {
@@ -248,7 +252,7 @@ const ThermalPaperPreview: React.FC<Props> = ({
 
       // Optionally add date/time if hasTime is true
       if (hasTime) {
-        tempCtx.font = "bold 22px monospace";
+        tempCtx.font = "bold 22px";
         tempCtx.fillStyle = "#444";
         const date = new Date();
         const dateString = date.toLocaleString("fr-FR", {
@@ -259,7 +263,7 @@ const ThermalPaperPreview: React.FC<Props> = ({
           minute: "2-digit",
           timeZone: "America/Montreal",
         });
-        tempCtx.fillText(dateString, centerX, y + 10);
+        tempCtx.fillText(dateString, centerX, y + 25);
       }
 
       // Get the image data and apply dithering

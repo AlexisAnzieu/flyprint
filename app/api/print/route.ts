@@ -5,6 +5,7 @@ import EscPosEncoder from "esc-pos-encoder";
 import { createCanvas } from "canvas";
 
 interface PrintParams {
+  hasTime: boolean;
   pictureUrl?: string;
   texts?: string[];
   logoUrl?: string;
@@ -47,13 +48,8 @@ async function getImage({
   }
 }
 
-const logger = {
-  error: (message: string, error?: any) => {
-    console.error(message, error);
-  },
-};
-
 async function encodePrintData({
+  hasTime,
   pictureUrl,
   texts,
   logoUrl,
@@ -62,6 +58,16 @@ async function encodePrintData({
 }: PrintParams) {
   const PICTURE_WIDTH = 528;
   const PICTURE_HEIGHT = 712;
+
+  const date = new Date();
+  const dateString = date.toLocaleString("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "America/Montreal",
+  });
 
   // @ts-ignore
   let encoder = new EscPosEncoder({
@@ -82,6 +88,7 @@ async function encodePrintData({
           logoHeight,
           "atkinson"
         )
+        .newline()
         .newline();
     }
     if (pictureUrl) {
@@ -99,12 +106,18 @@ async function encodePrintData({
     }
 
     if (texts) {
+      encoder.newline();
       texts.map((text) => encoder.line(text));
+    }
+
+    if (hasTime) {
+      encoder.newline();
+      encoder.line(dateString);
     }
 
     return encoder.newline().newline().newline().newline().cut().encode();
   } catch (err: any) {
-    logger.error("Failed to encode print data:", err.message || err);
+    console.error("Failed to encode print data:", err.message || err);
     return null;
   }
 }
@@ -126,16 +139,6 @@ export async function GET(req: Request) {
       `/flybooth/${flyboothId}/admin/logo`
     );
 
-    const date = new Date();
-    const dateString = date.toLocaleString("fr-FR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "America/Montreal",
-    });
-
     const flybooth = await prisma.flybooth.findUnique({
       where: {
         id: flyboothId,
@@ -153,12 +156,8 @@ export async function GET(req: Request) {
       return Response.json({ error: "Flybooth not found" }, { status: 404 });
     }
 
-    if (flybooth.hasTime) {
-      flybooth.texts.push({ content: "" });
-      flybooth.texts.push({ content: dateString });
-    }
-
     const printParams = {
+      hasTime: flybooth.hasTime,
       pictureUrl,
       logoUrl,
       logoWidth: flybooth.logoWidth,
