@@ -91,15 +91,13 @@ export default function Home({ params: { flyboothId } }: any) {
           <div className="flex items-start space-x-3">
             <span className="text-2xl">✍️</span>
             <div className="flex-1">
-              <h3 className="font-semibold mb-2 text-purple-300">
-                Ton message
-              </h3>
+              <h3 className="font-semibold mb-2 ">Ta légende</h3>
               <textarea
                 className="w-full p-3 rounded-xl  border-white/20 text-black placeholder-gray-400 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/50 focus:outline-none transition-all duration-300 backdrop-blur-sm resize-none"
                 rows={3}
                 value={userMessage}
                 onChange={(e) => setUserMessage(e.target.value)}
-                placeholder="Écris un petit message qui apparaîtra sur ta photo..."
+                placeholder="Un peu d'inspiration pour une légende en dessous de ta photo ? Écris-la ici !"
                 disabled={isLoading}
               />
             </div>
