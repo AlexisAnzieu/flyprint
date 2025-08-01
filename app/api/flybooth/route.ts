@@ -18,6 +18,8 @@ export async function GET(req: NextRequest) {
     },
     select: {
       hasTime: true,
+      logoWidth: true,
+      logoHeight: true,
       texts: {
         select: {
           content: true,
@@ -30,13 +32,13 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: Request) {
-  const { id, texts, hasTime } = await req.json();
+  const { id, texts, hasTime, logoWidth, logoHeight } = await req.json();
 
   // Ensure the flybooth exists or create it
   await prisma.flybooth.upsert({
     where: { id },
-    update: { hasTime },
-    create: { id, hasTime },
+    update: { hasTime, logoWidth, logoHeight },
+    create: { id, hasTime, logoWidth, logoHeight },
   });
 
   // Use a transaction to ensure atomicity

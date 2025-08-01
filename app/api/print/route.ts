@@ -1,16 +1,15 @@
 import { unstable_noStore as noStore } from "next/cache";
 import prisma from "@/prisma/db";
-import { queue } from "@/lib/queue";
 import { NextResponse } from "next/server";
 import EscPosEncoder from "esc-pos-encoder";
-import { isPrintQueueEnabled } from "@/flags";
-import { reportValue } from "flags";
 import { createCanvas } from "canvas";
 
 interface PrintParams {
   pictureUrl?: string;
   texts?: string[];
   logoUrl?: string;
+  logoWidth: number;
+  logoHeight: number;
 }
 
 async function getImage({
@@ -54,11 +53,15 @@ const logger = {
   },
 };
 
-async function encodePrintData({ pictureUrl, texts, logoUrl }: PrintParams) {
+async function encodePrintData({
+  pictureUrl,
+  texts,
+  logoUrl,
+  logoWidth,
+  logoHeight,
+}: PrintParams) {
   const PICTURE_WIDTH = 528;
   const PICTURE_HEIGHT = 712;
-  const LOGO_WIDTH = 200;
-  const LOGO_HEIGHT = 200;
 
   // @ts-ignore
   let encoder = new EscPosEncoder({
@@ -72,11 +75,11 @@ async function encodePrintData({ pictureUrl, texts, logoUrl }: PrintParams) {
         .image(
           await getImage({
             pictureUrl: logoUrl,
-            width: LOGO_WIDTH,
-            height: LOGO_HEIGHT,
+            width: logoWidth,
+            height: logoHeight,
           }),
-          LOGO_WIDTH,
-          LOGO_HEIGHT,
+          logoWidth,
+          logoHeight,
           "atkinson"
         )
         .newline();
@@ -124,7 +127,7 @@ export async function GET(req: Request) {
     );
 
     const date = new Date();
-    const dateString = date.toLocaleString("en-GB", {
+    const dateString = date.toLocaleString("fr-FR", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -146,7 +149,11 @@ export async function GET(req: Request) {
       },
     });
 
-    if (flybooth?.hasTime) {
+    if (!flybooth) {
+      return Response.json({ error: "Flybooth not found" }, { status: 404 });
+    }
+
+    if (flybooth.hasTime) {
       flybooth.texts.push({ content: "" });
       flybooth.texts.push({ content: dateString });
     }
@@ -154,7 +161,9 @@ export async function GET(req: Request) {
     const printParams = {
       pictureUrl,
       logoUrl,
-      texts: flybooth?.texts
+      logoWidth: flybooth.logoWidth,
+      logoHeight: flybooth.logoHeight,
+      texts: flybooth.texts
         .map((text) => text.content)
         .filter((text): text is string => text !== null),
     };
