@@ -4,6 +4,13 @@ import { NextResponse } from "next/server";
 import EscPosEncoder from "esc-pos-encoder";
 import { createCanvas } from "canvas";
 
+// Utility function to remove accents from a string
+function removeAccents(str: string): string {
+  if (!str) return str;
+  // Remove diacritics using a compatible regex
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
 interface PrintParams {
   hasTime: boolean;
   pictureUrl?: string;
@@ -71,6 +78,12 @@ async function encodePrintData({
     timeZone: "America/Montreal",
   });
 
+  // Remove accents from userMessage and texts
+  const printableUserMessage = userMessage
+    ? removeAccents(userMessage)
+    : undefined;
+  const printableTexts = texts ? texts.map((t) => removeAccents(t)) : undefined;
+
   // @ts-ignore
   let encoder = new EscPosEncoder({
     createCanvas,
@@ -108,14 +121,14 @@ async function encodePrintData({
     }
 
     // Print user message first (before admin texts)
-    if (userMessage && userMessage.trim()) {
+    if (printableUserMessage && printableUserMessage.trim()) {
       encoder.newline();
-      encoder.line(userMessage.trim());
+      encoder.line(printableUserMessage.trim());
     }
 
-    if (texts) {
+    if (printableTexts) {
       encoder.newline();
-      texts.map((text) => encoder.line(text));
+      printableTexts.map((text) => encoder.line(text));
     }
 
     if (hasTime) {

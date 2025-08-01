@@ -20,7 +20,11 @@ export default function Home({ params: { flyboothId } }: any) {
   async function uploadFile(e: React.ChangeEvent<HTMLInputElement>) {
     setIsLoading(true);
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      // Always reset file input so user can re-select the same file
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
 
     try {
       const url = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
@@ -54,6 +58,8 @@ export default function Home({ params: { flyboothId } }: any) {
       setError("Erreur survenue lors de l'envoi de la photo");
     } finally {
       setIsLoading(false);
+      // Always reset file input so user can re-select the same file
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   }
 
