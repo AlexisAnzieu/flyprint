@@ -8,6 +8,7 @@ interface PrintParams {
   hasTime: boolean;
   pictureUrl?: string;
   texts?: string[];
+  userMessage?: string;
   logoUrl?: string;
   logoWidth: number;
   logoHeight: number;
@@ -52,6 +53,7 @@ async function encodePrintData({
   hasTime,
   pictureUrl,
   texts,
+  userMessage,
   logoUrl,
   logoWidth,
   logoHeight,
@@ -105,6 +107,12 @@ async function encodePrintData({
       );
     }
 
+    // Print user message first (before admin texts)
+    if (userMessage && userMessage.trim()) {
+      encoder.newline();
+      encoder.line(userMessage.trim());
+    }
+
     if (texts) {
       encoder.newline();
       texts.map((text) => encoder.line(text));
@@ -129,6 +137,7 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const pictureUrl = searchParams.get("pictureUrl");
     const flyboothId = searchParams.get("flyboothId");
+    const userMessage = searchParams.get("userMessage");
 
     if (!pictureUrl || !flyboothId) {
       return Response.json({ error: "pictureUrl & flyboothId are required" });
@@ -159,6 +168,7 @@ export async function GET(req: Request) {
     const printParams = {
       hasTime: flybooth.hasTime,
       pictureUrl,
+      userMessage: userMessage || undefined,
       logoUrl,
       logoWidth: flybooth.logoWidth,
       logoHeight: flybooth.logoHeight,

@@ -7,6 +7,7 @@ export default function Home({ params: { flyboothId } }: any) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [userMessage, setUserMessage] = useState<string>("");
 
   function createFormData(uploadPreset: string, file: File) {
     const fd = new FormData();
@@ -36,12 +37,19 @@ export default function Home({ params: { flyboothId } }: any) {
         return;
       }
       const printRaw = await fetch(
-        `/api/print?pictureUrl=${response.secure_url}&flyboothId=${flyboothId}`
+        `/api/print?pictureUrl=${
+          response.secure_url
+        }&flyboothId=${flyboothId}&userMessage=${encodeURIComponent(
+          userMessage
+        )}`
       );
       const printResponse = await printRaw.json();
+
       if (printResponse.error) {
         setError(printResponse.error);
       }
+
+      setUserMessage("");
     } catch (error) {
       setError("Erreur survenue lors de l'envoi de la photo");
     } finally {
@@ -70,6 +78,26 @@ export default function Home({ params: { flyboothId } }: any) {
         <div className="text-center mb-8 animate-fade-in">
           <h1 className="text-3xl md:text-4xl font-bold mb-2">📸 Flybooth</h1>
           <p className="text-gray-300 text-lg">Capture l&apos;éphémère</p>
+        </div>
+
+        {/* User message input */}
+        <div className="glass-effect rounded-2xl p-6 mb-8 w-full max-w-md">
+          <div className="flex items-start space-x-3">
+            <span className="text-2xl">✍️</span>
+            <div className="flex-1">
+              <h3 className="font-semibold mb-2 text-purple-300">
+                Ton message
+              </h3>
+              <textarea
+                className="w-full p-3 rounded-xl  border-white/20 text-black placeholder-gray-400 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/50 focus:outline-none transition-all duration-300 backdrop-blur-sm resize-none"
+                rows={3}
+                value={userMessage}
+                onChange={(e) => setUserMessage(e.target.value)}
+                placeholder="Écris un petit message qui apparaîtra sur ta photo..."
+                disabled={isLoading}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Main capture area */}

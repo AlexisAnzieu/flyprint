@@ -506,7 +506,7 @@ export default function Home({ params: { flyboothId } }: any) {
           {/* Right column: Thermal rendering preview */}
           <div className="bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-2xl shadow-2xl flex flex-col">
             <h2 className="text-2xl font-semibold text-white mb-6 flex items-center gap-3">
-              Aperçu du rendu thermique
+              Aperçu
             </h2>
             <ThermalPaperPreview
               uploadedImageUrl={uploadedImageUrl}
