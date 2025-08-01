@@ -5,14 +5,111 @@ import { NextResponse } from "next/server";
 import EscPosEncoder from "esc-pos-encoder";
 import { isPrintQueueEnabled } from "@/flags";
 import { reportValue } from "flags";
+import { createCanvas } from "canvas";
+
+interface PrintParams {
+  pictureUrl?: string;
+  texts?: string[];
+  logoUrl?: string;
+}
+
+async function getImage({
+  pictureUrl,
+  width,
+  height,
+  rotate,
+}: {
+  pictureUrl: string;
+  width: number;
+  height: number;
+  rotate?: number;
+}) {
+  const { loadImage } = await import("canvas");
+
+  try {
+    const image = await loadImage(pictureUrl);
+    const canvas = createCanvas(width, height);
+    const ctx = canvas.getContext("2d");
+
+    if (rotate) {
+      // Rotate if needed
+      ctx.translate(width / 2, height / 2);
+      ctx.rotate((rotate * Math.PI) / 180);
+      ctx.translate(-height / 2, -width / 2);
+      ctx.drawImage(image, 0, 0, height, width);
+    } else {
+      ctx.drawImage(image, 0, 0, width, height);
+    }
+
+    return canvas;
+  } catch (error) {
+    console.error("Error loading image:", error);
+    throw error;
+  }
+}
+
+const logger = {
+  error: (message: string, error?: any) => {
+    console.error(message, error);
+  },
+};
+
+async function encodePrintData({ pictureUrl, texts, logoUrl }: PrintParams) {
+  const PICTURE_WIDTH = 528;
+  const PICTURE_HEIGHT = 712;
+  const LOGO_WIDTH = 200;
+  const LOGO_HEIGHT = 200;
+
+  // @ts-ignore
+  let encoder = new EscPosEncoder({
+    createCanvas,
+  });
+  try {
+    encoder = encoder.initialize().align("center");
+
+    if (logoUrl) {
+      encoder = encoder
+        .image(
+          await getImage({
+            pictureUrl: logoUrl,
+            width: LOGO_WIDTH,
+            height: LOGO_HEIGHT,
+          }),
+          LOGO_WIDTH,
+          LOGO_HEIGHT,
+          "atkinson"
+        )
+        .newline();
+    }
+    if (pictureUrl) {
+      encoder = encoder.image(
+        await getImage({
+          pictureUrl,
+          width: PICTURE_WIDTH,
+          height: PICTURE_HEIGHT,
+          rotate: 90,
+        }),
+        PICTURE_WIDTH,
+        PICTURE_HEIGHT,
+        "atkinson"
+      );
+    }
+
+    if (texts) {
+      texts.map((text) => encoder.line(text));
+    }
+
+    return encoder.newline().newline().newline().newline().cut().encode();
+  } catch (err: any) {
+    logger.error("Failed to encode print data:", err.message || err);
+    return null;
+  }
+}
 
 export async function GET(req: Request) {
   noStore();
 
   try {
-    const isPrintQueueEnabledValue = await isPrintQueueEnabled();
-    reportValue("is-print-queue-enabled", isPrintQueueEnabledValue);
-
     const { searchParams } = new URL(req.url);
     const pictureUrl = searchParams.get("pictureUrl");
     const flyboothId = searchParams.get("flyboothId");
@@ -54,29 +151,31 @@ export async function GET(req: Request) {
       flybooth.texts.push({ content: dateString });
     }
 
-    const printData = {
+    const printParams = {
       pictureUrl,
       logoUrl,
-      texts: flybooth?.texts.map((text) => text.content),
+      texts: flybooth?.texts
+        .map((text) => text.content)
+        .filter((text): text is string => text !== null),
     };
 
-    const res = await (isPrintQueueEnabledValue
-      ? queue.enqueueJSON({
-          url: `${process.env.PRINTER_URL as string}/print`,
-          body: printData,
-          headers: {
-            "Content-Type": "application/json",
-          },
-          retries: 1,
-          transform: (data: any) => JSON.stringify(data),
-        })
-      : fetch(`${process.env.PRINTER_URL as string}/print`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(printData),
-        }).then((r) => r.json()));
+    const encodedData = await encodePrintData(printParams);
+
+    if (!encodedData) {
+      return Response.json({ error: "Failed to encode print data" });
+    }
+
+    const res = await fetch(`${process.env.PRINTER_URL as string}/raw-print`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/octet-stream",
+      },
+      body: encodedData,
+    });
+
+    if (!res.ok) {
+      throw new Error(`Printer error! status: ${res.status}`);
+    }
 
     return Response.json(res);
   } catch (error) {
