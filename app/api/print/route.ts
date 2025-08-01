@@ -178,6 +178,15 @@ export async function GET(req: Request) {
       return Response.json({ error: "Flybooth not found" }, { status: 404 });
     }
 
+    if (userMessage) {
+      await prisma.userPrintMessage.create({
+        data: {
+          message: userMessage.trim(),
+          flyboothId: flyboothId,
+        },
+      });
+    }
+
     const printParams = {
       hasTime: flybooth.hasTime,
       pictureUrl,
