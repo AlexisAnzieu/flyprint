@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, use } from "react";
 import ThermalPaperPreview from "./ThermalPaperPreview";
 
 // Printer status icons
@@ -47,7 +47,11 @@ const PrinterStatusIcon = ({
   );
 };
 
-export default function Home({ params: { flyboothId } }: any) {
+export default function Home(props: any) {
+  const params: { flyboothId: string } = use(props.params);
+
+  const { flyboothId } = params;
+
   // Printer connection state: null = unknown, true = connected, false = not connected
   const [printerConnected, setPrinterConnected] = useState<boolean | null>(
     null

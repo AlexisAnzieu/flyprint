@@ -1,9 +1,13 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, use } from "react";
 import { CLOUDINARY_FOLDER, cloudName, uploadPreset } from "@/lib/constants";
 
-export default function Home({ params: { flyboothId } }: any) {
+export default function Home(props: any) {
+  const params: { flyboothId: string } = use(props.params);
+
+  const { flyboothId } = params;
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
