@@ -27,6 +27,16 @@ model Flybooth {
     logoWidth         Int                @default(200) @map(name: "logo_width")
     logoHeight        Int                @default(200) @map(name: "logo_height")
     userPrintMessages UserPrintMessage[]
+    Print             Print[]
+}
+
+model Print {
+    id         String   @id @default(cuid())
+    pictureUrl String
+    flybooth   Flybooth @relation(fields: [flyboothId], references: [id])
+    flyboothId String
+    message    String?  @db.Text
+    createdAt  DateTime @default(now())
 }
 
 model UserPrintMessage {
