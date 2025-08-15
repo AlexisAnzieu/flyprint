@@ -3,50 +3,6 @@
 import React, { useEffect, useRef, useState, use } from "react";
 import ThermalPaperPreview from "./ThermalPaperPreview";
 
-// Printer status icons
-const PrinterStatusIcon = ({
-  connected,
-  loading,
-}: {
-  connected: boolean | null;
-  loading: boolean;
-}) => {
-  if (loading) {
-    return (
-      <span
-        className="w-10 h-10 border-4 border-gray-300 border-t-green-400 rounded-full animate-spin"
-        title="Vérification en cours"
-      ></span>
-    );
-  }
-  if (connected === null) {
-    return (
-      <span
-        className="w-10 h-10 border-4 border-gray-300 border-t-gray-400 rounded-full animate-spin"
-        title="Statut inconnu"
-      ></span>
-    );
-  }
-  if (connected) {
-    return (
-      <span
-        className="w-10 h-10 flex items-center justify-center bg-green-500/20 border-4 border-green-400 rounded-full text-green-600 text-3xl shadow-lg"
-        title="Imprimante connectée"
-      >
-        ✔️
-      </span>
-    );
-  }
-  return (
-    <span
-      className="w-10 h-10 flex items-center justify-center bg-red-500/20 border-4 border-red-400 rounded-full text-red-600 text-3xl shadow-lg"
-      title="Imprimante non connectée"
-    >
-      ❌
-    </span>
-  );
-};
-
 export default function Home(props: any) {
   const params: { flyboothId: string } = use(props.params);
 
@@ -71,6 +27,11 @@ export default function Home(props: any) {
   const [printError, setPrintError] = useState<string | null>(null);
   const [logoWidth, setLogoWidth] = useState<number>(200);
   const [logoHeight, setLogoHeight] = useState<number>(200);
+
+  // Logout handler
+  const handleLogout = async () => {
+    window.location.href = "/api/auth/logout";
+  };
 
   // Move checkPrinterConnection to component scope
   async function checkPrinterConnection() {
@@ -219,13 +180,19 @@ export default function Home(props: any) {
     <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex justify-center items-center p-4">
       <div className="w-full max-w-2xl space-y-8">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 flex flex-col items-center">
           <h1 className="text-4xl font-bold text-white mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
             FlyBooth Admin
           </h1>
           <p className="text-slate-300 text-lg">
             Gérez votre configuration d&apos;impression
           </p>
+          <button
+            onClick={handleLogout}
+            className="mt-4 px-6 py-2 bg-red-600 text-white rounded font-semibold hover:bg-red-700 transition"
+          >
+            Logout
+          </button>
         </div>
 
         {/* Printer status at top - enhanced design */}
@@ -236,10 +203,10 @@ export default function Home(props: any) {
                 printerCheckLoading
                   ? "border-gray-400 bg-gray-900/60"
                   : printerConnected === true
-                  ? "border-green-400 bg-green-900/20"
-                  : printerConnected === false
-                  ? "border-red-400 bg-red-900/20"
-                  : "border-gray-400 bg-gray-900/60"
+                    ? "border-green-400 bg-green-900/20"
+                    : printerConnected === false
+                      ? "border-red-400 bg-red-900/20"
+                      : "border-gray-400 bg-gray-900/60"
               }
             `}
           >
@@ -254,19 +221,19 @@ export default function Home(props: any) {
                     printerCheckLoading
                       ? "text-gray-300"
                       : printerConnected === true
-                      ? "text-green-400"
-                      : printerConnected === false
-                      ? "text-red-400"
-                      : "text-gray-300"
+                        ? "text-green-400"
+                        : printerConnected === false
+                          ? "text-red-400"
+                          : "text-gray-300"
                   }`}
                 >
                   {printerCheckLoading
                     ? "Vérification de l'imprimante..."
                     : printerConnected === true
-                    ? "Imprimante connectée"
-                    : printerConnected === false
-                    ? "Imprimante non connectée"
-                    : "Statut inconnu"}
+                      ? "Imprimante connectée"
+                      : printerConnected === false
+                        ? "Imprimante non connectée"
+                        : "Statut inconnu"}
                 </div>
                 <div className="text-slate-400 text-sm mt-1">
                   {printerConnected === true &&
@@ -525,3 +492,47 @@ export default function Home(props: any) {
     </main>
   );
 }
+
+// Printer status icons
+const PrinterStatusIcon = ({
+  connected,
+  loading,
+}: {
+  connected: boolean | null;
+  loading: boolean;
+}) => {
+  if (loading) {
+    return (
+      <span
+        className="w-10 h-10 border-4 border-gray-300 border-t-green-400 rounded-full animate-spin"
+        title="Vérification en cours"
+      ></span>
+    );
+  }
+  if (connected === null) {
+    return (
+      <span
+        className="w-10 h-10 border-4 border-gray-300 border-t-gray-400 rounded-full animate-spin"
+        title="Statut inconnu"
+      ></span>
+    );
+  }
+  if (connected) {
+    return (
+      <span
+        className="w-10 h-10 flex items-center justify-center bg-green-500/20 border-4 border-green-400 rounded-full text-green-600 text-3xl shadow-lg"
+        title="Imprimante connectée"
+      >
+        ✔️
+      </span>
+    );
+  }
+  return (
+    <span
+      className="w-10 h-10 flex items-center justify-center bg-red-500/20 border-4 border-red-400 rounded-full text-red-600 text-3xl shadow-lg"
+      title="Imprimante non connectée"
+    >
+      ❌
+    </span>
+  );
+};
