@@ -161,30 +161,30 @@ export async function GET(req: Request) {
       `/flybooth/${flyboothId}/admin/logo`
     );
 
-    const flybooth = await prisma.flybooth.findUnique({
-      where: {
-        id: flyboothId,
-      },
-      include: {
-        texts: {
-          select: {
-            content: true,
+    const [flybooth, _] = await Promise.all([
+      prisma.flybooth.findUnique({
+        where: {
+          id: flyboothId,
+        },
+        include: {
+          texts: {
+            select: {
+              content: true,
+            },
           },
         },
-      },
-    });
+      }),
+      prisma.print.create({
+        data: {
+          pictureUrl,
+          flyboothId: flyboothId,
+          message: userMessage?.trim() || null,
+        },
+      }),
+    ]);
 
     if (!flybooth) {
       return Response.json({ error: "Flybooth not found" }, { status: 404 });
-    }
-
-    if (userMessage) {
-      await prisma.userPrintMessage.create({
-        data: {
-          message: userMessage.trim(),
-          flyboothId: flyboothId,
-        },
-      });
     }
 
     const printParams = {

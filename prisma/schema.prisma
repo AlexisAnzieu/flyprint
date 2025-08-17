@@ -19,20 +19,21 @@ model Text {
 }
 
 model Flybooth {
-    id                String             @id @default(cuid())
-    createdAt         DateTime           @default(now()) @map(name: "created_at")
-    updatedAt         DateTime           @updatedAt @map(name: "updated_at")
-    texts             Text[]
-    hasTime           Boolean            @default(true) @map(name: "has_time")
-    logoWidth         Int                @default(200) @map(name: "logo_width")
-    logoHeight        Int                @default(200) @map(name: "logo_height")
-    userPrintMessages UserPrintMessage[]
+    id         String   @id @default(cuid())
+    createdAt  DateTime @default(now()) @map(name: "created_at")
+    updatedAt  DateTime @updatedAt @map(name: "updated_at")
+    texts      Text[]
+    hasTime    Boolean  @default(true) @map(name: "has_time")
+    logoWidth  Int      @default(200) @map(name: "logo_width")
+    logoHeight Int      @default(200) @map(name: "logo_height")
+    Print      Print[]
 }
 
-model UserPrintMessage {
+model Print {
     id         String   @id @default(cuid())
-    message    String
-    flyboothId String
-    createdAt  DateTime @default(now())
+    pictureUrl String
     flybooth   Flybooth @relation(fields: [flyboothId], references: [id])
+    flyboothId String
+    message    String?  @db.Text
+    createdAt  DateTime @default(now())
 }
