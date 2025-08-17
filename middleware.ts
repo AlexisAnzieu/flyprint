@@ -5,8 +5,11 @@ const AUTH_WEBSITE_ID = "UrOy6TyGKtoiVnXE3ktOw";
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  // Match /admin and /[flyboothId]/admin paths
-  if (pathname.startsWith("/admin") || /^\/[^/]+\/admin/.test(pathname)) {
+  if (
+    pathname === "/dashboard" ||
+    pathname.startsWith("/admin") ||
+    /^\/[^/]+\/admin/.test(pathname)
+  ) {
     const token = req.cookies.get("auth_token")?.value;
     const redirectTo = encodeURIComponent(
       `${process.env.WEBSITE_URL}/api/auth/callback?redirectUrl=${req.nextUrl.pathname + req.nextUrl.search}`
@@ -30,5 +33,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/:flyboothId/admin/:path*"],
+  matcher: ["/dashboard", "/:flyboothId/admin", "/:flyboothId/admin/:path*"],
 };
