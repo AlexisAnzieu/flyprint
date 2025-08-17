@@ -1,18 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
+const AUTH_WEBSITE_ID = "UrOy6TyGKtoiVnXE3ktOw";
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   // Match /admin and /[flyboothId]/admin paths
   if (pathname.startsWith("/admin") || /^\/[^/]+\/admin/.test(pathname)) {
     const token = req.cookies.get("auth_token")?.value;
+    const redirectTo = encodeURIComponent(
+      `${process.env.WEBSITE_URL}/api/auth/callback?redirectUrl=${req.nextUrl.pathname + req.nextUrl.search}`
+    );
+    const authUrl = `${process.env.NEXT_PUBLIC_AUTH_URL}/login?id=${AUTH_WEBSITE_ID}&callbackUrl=${redirectTo}`;
     if (!token) {
-      const redirectTo = encodeURIComponent(
-        req.nextUrl.pathname + req.nextUrl.search
-      );
-      return NextResponse.redirect(
-        `${req.nextUrl.origin}/login?redirectUrl=${redirectTo}`
-      );
+      return NextResponse.redirect(authUrl);
     }
     try {
       // Verify JWT
@@ -21,13 +22,7 @@ export async function middleware(req: NextRequest) {
       // Token is valid, allow access
       return NextResponse.next();
     } catch {
-      // Invalid token, redirect to login
-      const redirectTo = encodeURIComponent(
-        req.nextUrl.pathname + req.nextUrl.search
-      );
-      return NextResponse.redirect(
-        `${req.nextUrl.origin}/login?redirectUrl=${redirectTo}`
-      );
+      return NextResponse.redirect(authUrl);
     }
   }
   // Allow other paths
