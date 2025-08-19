@@ -7,10 +7,6 @@ const AUTH_WEBSITE_ID = "UrOy6TyGKtoiVnXE3ktOw";
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  if (pathname === "/") {
-    return NextResponse.redirect("https://www.flybooth.app/fr/printer");
-  }
-
   if (
     pathname === "/dashboard" ||
     pathname.startsWith("/admin") ||

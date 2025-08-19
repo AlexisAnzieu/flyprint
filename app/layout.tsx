@@ -18,7 +18,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {children} <Analytics /> {shouldInjectToolbar && <VercelToolbar />}
+        {children}
+        <Analytics /> {shouldInjectToolbar && <VercelToolbar />}
       </body>
     </html>
   );

@@ -9,6 +9,15 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+model Team {
+    id        String     @id @default(cuid())
+    name      String
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
+    flybooths Flybooth[]
+    users     User[]
+}
+
 model User {
     id        String     @id @default(cuid())
     name      String
@@ -17,28 +26,22 @@ model User {
     createdAt DateTime   @default(now())
     updatedAt DateTime   @updatedAt
     flybooths Flybooth[]
-}
-
-model Text {
-    id         String    @id @default(cuid())
-    content    String?
-    flybooth   Flybooth? @relation(fields: [flyboothId], references: [id])
-    flyboothId String?
-    createdAt  DateTime  @default(now()) @map(name: "created_at")
-    updatedAt  DateTime  @updatedAt @map(name: "updated_at")
+    teams     Team[]
 }
 
 model Flybooth {
     id         String   @id @default(cuid())
+    name       String
     createdAt  DateTime @default(now()) @map(name: "created_at")
     updatedAt  DateTime @updatedAt @map(name: "updated_at")
-    texts      Text[]
     hasTime    Boolean  @default(true) @map(name: "has_time")
     logoWidth  Int      @default(200) @map(name: "logo_width")
     logoHeight Int      @default(200) @map(name: "logo_height")
-    Print      Print[]
-    User       User?    @relation(fields: [userId], references: [id])
-    userId     String?
+    print      Print[]
+    users      User[]
+    texts      String[]
+    team       Team?    @relation(fields: [teamId], references: [id])
+    teamId     String?
 }
 
 model Print {

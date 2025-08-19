@@ -1,4 +1,5 @@
 import prisma from "@/prisma/db";
+import { Flybooth } from "@prisma/client";
 import { unstable_noStore as noStore } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -16,46 +17,32 @@ export async function GET(req: NextRequest) {
     where: {
       id: flyboothId,
     },
-    select: {
-      hasTime: true,
-      logoWidth: true,
-      logoHeight: true,
-      texts: {
-        select: {
-          content: true,
-        },
-      },
-    },
+  });
+
+  return NextResponse.json(flybooth);
+}
+
+export async function PUT(req: NextRequest) {
+  const payload: Flybooth = await req.json();
+
+  if (!payload.id) {
+    return NextResponse.json({ message: "id is required" }, { status: 400 });
+  }
+
+  const flybooth = await prisma.flybooth.update({
+    where: { id: payload.id },
+    data: payload,
   });
 
   return NextResponse.json(flybooth);
 }
 
 export async function POST(req: Request) {
-  const { id, texts, hasTime, logoWidth, logoHeight } = await req.json();
+  const { name } = await req.json();
 
-  // Ensure the flybooth exists or create it
-  await prisma.flybooth.upsert({
-    where: { id },
-    update: { hasTime, logoWidth, logoHeight },
-    create: { id, hasTime, logoWidth, logoHeight },
+  const flybooth = await prisma.flybooth.create({
+    data: { name },
   });
 
-  // Use a transaction to ensure atomicity
-  const newText = await prisma.$transaction(async (prisma) => {
-    // Delete all texts attached to the flybooth
-    await prisma.text.deleteMany({
-      where: { flyboothId: id },
-    });
-
-    // Create new texts
-    return prisma.text.createMany({
-      data: texts.map((content: string) => ({
-        content,
-        flyboothId: id,
-      })),
-    });
-  });
-
-  return NextResponse.json(newText);
+  return NextResponse.json(flybooth);
 }
