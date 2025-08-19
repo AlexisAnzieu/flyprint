@@ -1,26 +1,7 @@
+import { getUserFromCookie } from "@/lib/auth";
 import prisma from "@/prisma/db";
 import { Flybooth } from "@prisma/client";
-import { unstable_noStore as noStore } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
-
-export async function GET(req: NextRequest) {
-  noStore();
-
-  const searchParams = req.nextUrl.searchParams;
-  const flyboothId = searchParams.get("id");
-
-  if (!flyboothId) {
-    return NextResponse.json({ message: "id is required" }, { status: 400 });
-  }
-
-  const flybooth = await prisma.flybooth.findUnique({
-    where: {
-      id: flyboothId,
-    },
-  });
-
-  return NextResponse.json(flybooth);
-}
 
 export async function PUT(req: NextRequest) {
   const payload: Flybooth = await req.json();
@@ -39,9 +20,14 @@ export async function PUT(req: NextRequest) {
 
 export async function POST(req: Request) {
   const { name } = await req.json();
+  const user = await getUserFromCookie();
+
+  if (!user) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
 
   const flybooth = await prisma.flybooth.create({
-    data: { name },
+    data: { name, users: { connect: { id: user.id } } },
   });
 
   return NextResponse.json(flybooth);

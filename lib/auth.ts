@@ -25,7 +25,7 @@ export async function getUserFromToken<T>(token: string): Promise<T> {
 export async function getUserFromCookie() {
   const cookiesStore = await cookies();
   const token = cookiesStore.get(AUTH_COOKIE_NAME)?.value;
-  return token ? getUserFromToken(token) : null;
+  return token ? getUserFromToken<InternalTokenPayload>(token) : null;
 }
 
 export async function createToken(payload: InternalTokenPayload) {

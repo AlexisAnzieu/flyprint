@@ -166,13 +166,6 @@ export async function GET(req: Request) {
         where: {
           id: flyboothId,
         },
-        include: {
-          texts: {
-            select: {
-              content: true,
-            },
-          },
-        },
       }),
       prisma.print.create({
         data: {
@@ -194,9 +187,7 @@ export async function GET(req: Request) {
       logoUrl,
       logoWidth: flybooth.logoWidth,
       logoHeight: flybooth.logoHeight,
-      texts: flybooth.texts
-        .map((text) => text.content)
-        .filter((text): text is string => text !== null),
+      texts: flybooth.texts,
     };
 
     const encodedData = await encodePrintData(printParams);
@@ -210,7 +201,7 @@ export async function GET(req: Request) {
       headers: {
         "Content-Type": "application/octet-stream",
       },
-      body: encodedData,
+      body: encodedData, //new Blob([Uint8Array.from(encodedData)]),
     });
 
     if (!res.ok) {
@@ -252,7 +243,7 @@ export async function POST(request: Request) {
         headers: {
           "Content-Type": "application/octet-stream",
         },
-        body: printData,
+        body: new Blob([Uint8Array.from(printData as any)]),
       }
     );
 
