@@ -9,6 +9,16 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+model User {
+    id        String     @id @default(cuid())
+    name      String
+    unifiedId String     @unique
+    email     String     @unique
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
+    flybooths Flybooth[]
+}
+
 model Text {
     id         String    @id @default(cuid())
     content    String?
@@ -27,6 +37,8 @@ model Flybooth {
     logoWidth  Int      @default(200) @map(name: "logo_width")
     logoHeight Int      @default(200) @map(name: "logo_height")
     Print      Print[]
+    User       User?    @relation(fields: [userId], references: [id])
+    userId     String?
 }
 
 model Print {

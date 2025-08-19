@@ -1,16 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
+import { AUTH_COOKIE_NAME } from "./lib/auth";
 
 const AUTH_WEBSITE_ID = "UrOy6TyGKtoiVnXE3ktOw";
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  if (pathname === "/") {
+    return NextResponse.redirect("https://www.flybooth.app/fr/printer");
+  }
+
   if (
     pathname === "/dashboard" ||
     pathname.startsWith("/admin") ||
     /^\/[^/]+\/admin/.test(pathname)
   ) {
-    const token = req.cookies.get("auth_token")?.value;
+    const token = req.cookies.get(AUTH_COOKIE_NAME)?.value;
     const redirectTo = encodeURIComponent(
       `${process.env.WEBSITE_URL}/api/auth/callback?redirectUrl=${req.nextUrl.pathname + req.nextUrl.search}`
     );
