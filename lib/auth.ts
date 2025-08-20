@@ -25,7 +25,10 @@ export async function getUserFromToken<T>(token: string): Promise<T> {
 export async function getUserFromCookie() {
   const cookiesStore = await cookies();
   const token = cookiesStore.get(AUTH_COOKIE_NAME)?.value;
-  return token ? getUserFromToken<InternalTokenPayload>(token) : null;
+  if (!token) {
+    throw new Error("No authentication token found");
+  }
+  return getUserFromToken<InternalTokenPayload>(token);
 }
 
 export async function createToken(payload: InternalTokenPayload) {

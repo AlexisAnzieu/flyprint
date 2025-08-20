@@ -22,10 +22,6 @@ export async function POST(req: Request) {
   const { name } = await req.json();
   const user = await getUserFromCookie();
 
-  if (!user) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
-
   const flybooth = await prisma.flybooth.create({
     data: { name, users: { connect: { id: user.id } } },
   });

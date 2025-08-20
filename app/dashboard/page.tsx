@@ -4,7 +4,7 @@ import prisma from "@/prisma/db";
 import { getUserFromCookie } from "@/lib/auth";
 
 export default async function DashboardPage() {
-  const { id } = (await getUserFromCookie()) || {};
+  const { id } = await getUserFromCookie();
   const flybooths = await prisma.flybooth.findMany({
     where: {
       users: {
