@@ -17,6 +17,12 @@ export default function LeftNav() {
         <Link href="/dashboard" className="px-3 py-2 rounded hover:bg-white/5">
           Tableau de bord
         </Link>
+        <Link
+          href="/dashboard/statistics"
+          className="px-3 py-2 rounded hover:bg-white/5"
+        >
+          Statistiques
+        </Link>
         <a
           href="/flybooth_manual_v1.pdf"
           className="px-3 py-2 rounded bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold shadow-md hover:from-blue-700 hover:to-purple-700 transition-colors duration-200 cursor-pointer flex items-center gap-2"
