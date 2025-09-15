@@ -162,21 +162,21 @@ export default function FlyboothAdminPanel({ flybooth }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center  pt-12 md:pt-0">
         <Link
           href="/dashboard"
-          className="px-3 py-1 rounded bg-white/6 text-white hover:bg-white/10"
+          className="px-3 py-2 rounded bg-white/6 text-white hover:bg-white/10 touch-manipulation"
         >
-          ← Retour
+          ←
         </Link>
-        <div className="text-white font-semibold">{flybooth.name}</div>
+        <div className="text-white font-semibold truncate">{flybooth.name}</div>
       </div>
 
-      <div className="w-full max-w-4xl bg-slate-900/80 p-6 rounded-2xl shadow-xl text-white">
+      <div className="w-full  bg-slate-900/80 p-4 sm:p-6 rounded-2xl shadow-xl text-white">
         {/* Printer status */}
         <div className="mb-6">
           <div
-            className={`flex items-center justify-between gap-4 p-4 rounded-xl border transition-all duration-300
+            className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border transition-all duration-300
             ${
               printerCheckLoading
                 ? "border-gray-400 bg-gray-900/60"
@@ -193,7 +193,7 @@ export default function FlyboothAdminPanel({ flybooth }: Props) {
                 connected={printerConnected}
                 loading={printerCheckLoading}
               />
-              <div>
+              <div className="flex-1">
                 <div
                   className={`text-sm font-semibold ${
                     printerCheckLoading
@@ -227,7 +227,7 @@ export default function FlyboothAdminPanel({ flybooth }: Props) {
             <button
               onClick={checkPrinterConnection}
               disabled={printerCheckLoading}
-              className={`px-3 py-2 rounded font-medium text-white text-sm transition-all duration-300 ${
+              className={`px-4 py-3 rounded font-medium text-white text-sm transition-all duration-300 touch-manipulation w-full sm:w-auto ${
                 printerCheckLoading
                   ? "bg-slate-500 cursor-not-allowed"
                   : "bg-gradient-to-r from-green-500 to-emerald-500"
@@ -238,7 +238,7 @@ export default function FlyboothAdminPanel({ flybooth }: Props) {
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 lg:grid-cols-2">
           <div className="space-y-6">
             <div className="bg-white/8 p-4 rounded-lg">
               <h4 className="font-semibold mb-3">
@@ -257,7 +257,7 @@ export default function FlyboothAdminPanel({ flybooth }: Props) {
                 type="button"
                 onClick={() => !isLoading && fileInputRef.current?.click()}
                 disabled={isLoading}
-                className={`px-3 py-2 rounded-md font-medium text-white ${
+                className={`w-full sm:w-auto px-4 py-3 rounded-md font-medium text-white touch-manipulation ${
                   isLoading
                     ? "bg-slate-500 cursor-not-allowed"
                     : "bg-gradient-to-r from-purple-500 to-pink-500"
@@ -308,8 +308,11 @@ export default function FlyboothAdminPanel({ flybooth }: Props) {
                   <h5 className="text-sm text-slate-300 mb-2">
                     Dimensions du logo
                   </h5>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-4 sm:grid sm:grid-cols-2 sm:gap-3 sm:space-y-0">
                     <div>
+                      <label className="text-xs text-slate-400 block mb-1">
+                        Largeur
+                      </label>
                       <input
                         type="range"
                         min={104}
@@ -321,12 +324,16 @@ export default function FlyboothAdminPanel({ flybooth }: Props) {
                             Math.round(parseInt(e.target.value) / 8) * 8
                           )
                         }
+                        className="w-full"
                       />
                       <div className="text-xs text-white mt-1">
                         {logoWidth}px
                       </div>
                     </div>
                     <div>
+                      <label className="text-xs text-slate-400 block mb-1">
+                        Hauteur
+                      </label>
                       <input
                         type="range"
                         min={8}
@@ -338,6 +345,7 @@ export default function FlyboothAdminPanel({ flybooth }: Props) {
                             Math.round(parseInt(e.target.value) / 8) * 8
                           )
                         }
+                        className="w-full"
                       />
                       <div className="text-xs text-white mt-1">
                         {logoHeight}px
@@ -360,7 +368,7 @@ export default function FlyboothAdminPanel({ flybooth }: Props) {
                 <button
                   onClick={sendText}
                   disabled={textLoading}
-                  className={`w-full mt-2 py-2 rounded font-semibold ${
+                  className={`w-full mt-2 py-3 rounded font-semibold touch-manipulation ${
                     textLoading
                       ? "bg-slate-500"
                       : "bg-gradient-to-r from-purple-500 to-pink-500"
@@ -379,7 +387,7 @@ export default function FlyboothAdminPanel({ flybooth }: Props) {
               </h4>
               <button
                 onClick={printQRCode}
-                className="w-full py-2 rounded bg-gradient-to-r from-green-500 to-emerald-500 text-white"
+                className="w-full py-3 rounded bg-gradient-to-r from-green-500 to-emerald-500 text-white touch-manipulation"
               >
                 🖨️ Imprimer le QR code
               </button>

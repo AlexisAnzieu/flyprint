@@ -298,15 +298,19 @@ const ThermalPaperPreview: React.FC<Props> = ({
           ref={canvasRef}
           width={THERMAL_SPECS.PAPER_WIDTH_PX} // Full paper width (80mm at 203 DPI)
           height={THERMAL_SPECS.PAPER_WIDTH_PX * 2} // Show full paper height (2x width for portrait orientation)
-          className={`h-auto bg-white rounded-lg shadow-md border border-gray-200 ${
-            cssWidthPx ? "" : "max-w-[320px]"
+          className={`h-auto bg-white rounded-lg shadow-md border border-gray-200 max-w-full ${
+            cssWidthPx ? "" : "w-full max-w-[280px] sm:max-w-[320px]"
           }`}
-          style={cssWidthPx ? { width: `${cssWidthPx}px` } : undefined}
+          style={
+            cssWidthPx && typeof window !== "undefined"
+              ? { width: `${Math.min(cssWidthPx, window.innerWidth - 32)}px` }
+              : undefined
+          }
         />
       </div>
-      <div className="text-slate-400 text-xs mt-3 text-center space-y-1">
+      <div className="text-slate-400 text-xs mt-3 text-center space-y-1 px-2">
         <div>Aperçu simulé à l&apos;échelle physique • 203 DPI</div>
-        <div>
+        <div className="break-words">
           Papier: {THERMAL_SPECS.PAPER_WIDTH_MM}mm • Zone d&apos;impression:{" "}
           {THERMAL_SPECS.PRINT_WIDTH_MM}mm • {THERMAL_SPECS.POINTS_PER_LINE}{" "}
           points/ligne

@@ -20,7 +20,7 @@ export default function LeftNav() {
       {!isMobileMenuOpen && (
         <button
           onClick={toggleMobileMenu}
-          className="fixed top-4 left-4 z-50 p-2 bg-slate-900/90 text-white rounded-lg shadow-lg md:hidden hover:bg-slate-800/90 transition-colors"
+          className="fixed top-4 left-4 z-50 p-3 bg-slate-900/90 text-white rounded-lg shadow-lg md:hidden hover:bg-slate-800/90 transition-colors touch-manipulation"
           aria-label="Open navigation menu"
         >
           <svg
@@ -61,31 +61,54 @@ export default function LeftNav() {
         }
       `}
       >
-        <div className="mb-8">
-          <Link href="/" className="text-2xl font-bold block mb-2">
-            Flyprint
-          </Link>
-          <div className="text-sm text-slate-300">Photobooth admin</div>
+        {/* Close button for mobile */}
+        <div className="flex items-center justify-between mb-8 md:block">
+          <div>
+            <Link href="/" className="text-2xl font-bold block mb-2">
+              Flyprint
+            </Link>
+            <div className="text-sm text-slate-300">Photobooth admin</div>
+          </div>
+          <button
+            onClick={closeMobileMenu}
+            className="md:hidden p-2 text-white hover:bg-white/5 rounded transition-colors touch-manipulation"
+            aria-label="Close navigation menu"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
         </div>
 
         <nav className="flex flex-col gap-2">
           <Link
             href="/dashboard"
-            className="px-3 py-2 rounded hover:bg-white/5"
+            className="px-4 py-3 rounded hover:bg-white/5 transition-colors touch-manipulation"
             onClick={closeMobileMenu}
           >
             Tableau de bord
           </Link>
           <Link
             href="/dashboard/statistics"
-            className="px-3 py-2 rounded hover:bg-white/5"
+            className="px-4 py-3 rounded hover:bg-white/5 transition-colors touch-manipulation"
             onClick={closeMobileMenu}
           >
             Statistiques
           </Link>
           <a
             href="/flybooth_manual_v1.pdf"
-            className="px-3 py-2 rounded bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold shadow-md hover:from-blue-700 hover:to-purple-700 transition-colors duration-200 cursor-pointer flex items-center gap-2"
+            className="px-4 py-3 rounded bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold shadow-md hover:from-blue-700 hover:to-purple-700 transition-colors duration-200 cursor-pointer flex items-center gap-2 touch-manipulation"
             target="_blank"
             rel="noopener noreferrer"
             onClick={closeMobileMenu}

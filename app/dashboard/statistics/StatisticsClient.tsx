@@ -184,9 +184,11 @@ export default function StatisticsClient({
 
   if (!flybooths) {
     return (
-      <main className="min-h-screen p-8">
+      <main className="min-h-screen p-4 sm:p-6 lg:p-8">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-3xl font-bold text-white mb-6">Statistiques</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-6">
+            Statistiques
+          </h1>
           <div className="bg-white/5 p-6 rounded-lg">
             <div className="text-white text-center">
               Aucune donnée disponible
@@ -198,18 +200,20 @@ export default function StatisticsClient({
   }
 
   return (
-    <main className="min-h-screen p-8">
+    <main className="min-h-screen p-4 sm:p-6 lg:p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-white">Statistiques</h1>
-          <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">
+            Statistiques
+          </h1>
+          <div className="flex flex-col sm:flex-row gap-2">
             {/* Time Grouping Select */}
             <select
               value={timeGrouping}
               onChange={(e) =>
                 setTimeGrouping(e.target.value as "minute" | "hour" | "day")
               }
-              className="px-4 py-2 rounded bg-white/10 text-white border border-white/20 hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-3 rounded bg-white/10 text-white border border-white/20 hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500 touch-manipulation"
             >
               <option value="minute" className="bg-gray-800 text-white">
                 Par minute
@@ -223,36 +227,38 @@ export default function StatisticsClient({
             </select>
 
             {/* Chart Type Buttons */}
-            <button
-              onClick={() => setChartType("line")}
-              className={`px-4 py-2 rounded ${
-                chartType === "line"
-                  ? "bg-blue-600 text-white"
-                  : "bg-white/10 text-white hover:bg-white/20"
-              }`}
-            >
-              Ligne
-            </button>
-            <button
-              onClick={() => setChartType("bar")}
-              className={`px-4 py-2 rounded ${
-                chartType === "bar"
-                  ? "bg-blue-600 text-white"
-                  : "bg-white/10 text-white hover:bg-white/20"
-              }`}
-            >
-              Barres
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setChartType("line")}
+                className={`px-4 py-3 rounded touch-manipulation ${
+                  chartType === "line"
+                    ? "bg-blue-600 text-white"
+                    : "bg-white/10 text-white hover:bg-white/20"
+                }`}
+              >
+                Ligne
+              </button>
+              <button
+                onClick={() => setChartType("bar")}
+                className={`px-4 py-3 rounded touch-manipulation ${
+                  chartType === "bar"
+                    ? "bg-blue-600 text-white"
+                    : "bg-white/10 text-white hover:bg-white/20"
+                }`}
+              >
+                Barres
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           <div className="bg-white/5 p-4 rounded-lg">
             <h3 className="text-lg font-semibold text-white mb-2">
               Total Flybooths
             </h3>
-            <p className="text-3xl font-bold text-blue-400">
+            <p className="text-2xl sm:text-3xl font-bold text-blue-400">
               {flybooths.length}
             </p>
           </div>
@@ -260,25 +266,25 @@ export default function StatisticsClient({
             <h3 className="text-lg font-semibold text-white mb-2">
               Total Impressions
             </h3>
-            <p className="text-3xl font-bold text-green-400">
+            <p className="text-2xl sm:text-3xl font-bold text-green-400">
               {flybooths
                 .map((fb) => fb.print.length)
                 .reduce((a, b) => a + b, 0)}
             </p>
           </div>
-          <div className="bg-white/5 p-4 rounded-lg">
+          <div className="bg-white/5 p-4 rounded-lg sm:col-span-2 lg:col-span-1">
             <h3 className="text-lg font-semibold text-white mb-2">
               Périodes ({getTimeGroupingLabel()}s)
             </h3>
-            <p className="text-3xl font-bold text-purple-400">
+            <p className="text-2xl sm:text-3xl font-bold text-purple-400">
               {timeKeys.length}
             </p>
           </div>
         </div>
 
         {/* Chart */}
-        <div className="bg-white/5 p-6 rounded-lg mb-6">
-          <div className="h-96">
+        <div className="bg-white/5 p-4 sm:p-6 rounded-lg mb-6 overflow-hidden">
+          <div className="h-64 sm:h-80 lg:h-96">
             {chartType === "line" ? (
               <Line data={dynamicChartData} options={chartOptions} />
             ) : (

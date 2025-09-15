@@ -16,7 +16,7 @@ export default function CreateFlyboothButton() {
       <button
         onClick={() => setModalOpen(true)}
         disabled={creating}
-        className={`inline-flex items-center gap-2 px-4 py-2 rounded-md font-medium text-white shadow-sm transform transition-all duration-150 ${
+        className={`inline-flex items-center justify-center gap-2 px-4 py-3 rounded-md font-medium text-white shadow-sm transform transition-all duration-150 touch-manipulation w-full sm:w-auto ${
           creating
             ? "bg-slate-500 cursor-not-allowed"
             : "bg-gradient-to-r from-purple-500 to-pink-500 hover:scale-105"

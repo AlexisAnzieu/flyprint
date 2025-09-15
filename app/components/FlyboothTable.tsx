@@ -9,9 +9,9 @@ export default function FlyboothTable({
 }) {
   return (
     <div className="w-full space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col gap-4">
         <div className="space-y-2">
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+          <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
             Vos Flybooth
           </h2>
           <p className="text-white text-sm">
@@ -20,7 +20,7 @@ export default function FlyboothTable({
           </p>
         </div>
         {flybooths.length > 0 && (
-          <div className="flex items-center gap-3">
+          <div className="flex justify-start">
             <CreateFlyboothButton />
           </div>
         )}
@@ -31,18 +31,18 @@ export default function FlyboothTable({
           {flybooths.map((fb, index) => (
             <div
               key={fb.id}
-              className="group relative glass-effect rounded-xl p-6 hover:bg-white/[0.08] transition-all duration-300 animate-fade-in border border-white/10"
+              className="group relative glass-effect rounded-xl p-4 sm:p-6 hover:bg-white/[0.08] transition-all duration-300 animate-fade-in border border-white/10"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               {/* Gradient border on hover */}
               <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
 
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex flex-col gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
+                    <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
                       <svg
-                        className="w-6 h-6 text-white"
+                        className="w-5 h-5 sm:w-6 sm:h-6 text-white"
                         viewBox="0 0 24 24"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
@@ -64,14 +64,14 @@ export default function FlyboothTable({
                       </svg>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-semibold text-white truncate group-hover:text-purple-200 transition-colors duration-300">
+                      <h3 className="text-lg sm:text-xl font-semibold text-white truncate group-hover:text-purple-200 transition-colors duration-300">
                         {fb.name}
                       </h3>
-                      <div className="flex items-center gap-2 mt-1">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-1">
                         <span className="text-xs text-gray-400 font-mono">
                           ID: {fb.id}
                         </span>
-                        <span className="w-1 h-1 bg-gray-500 rounded-full" />
+                        <span className="hidden sm:block w-1 h-1 bg-gray-500 rounded-full" />
                         <span className="text-xs text-gray-400">
                           {new Date(fb.createdAt).toLocaleDateString("fr-FR", {
                             day: "numeric",
@@ -84,12 +84,12 @@ export default function FlyboothTable({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                   <Link
                     href={`https://www.flybooth.app/${fb.id}/gallery`}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-white text-sm font-medium hover:from-purple-500/30 hover:to-pink-500/30 transition-all duration-200 hover:scale-105 border border-purple-500/30 shadow-lg group"
+                    className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-white text-sm font-medium hover:from-purple-500/30 hover:to-pink-500/30 transition-all duration-200 hover:scale-105 border border-purple-500/30 shadow-lg group touch-manipulation"
                   >
                     <svg
                       className="w-4 h-4"
@@ -110,7 +110,7 @@ export default function FlyboothTable({
 
                   <Link
                     href={`/dashboard/${fb.id}`}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-white text-sm font-medium hover:from-purple-500/30 hover:to-pink-500/30 transition-all duration-200 hover:scale-105 border border-purple-500/30 shadow-lg group"
+                    className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-white text-sm font-medium hover:from-purple-500/30 hover:to-pink-500/30 transition-all duration-200 hover:scale-105 border border-purple-500/30 shadow-lg group touch-manipulation"
                   >
                     <svg
                       className="w-4 h-4 group-hover:rotate-12 transition-transform duration-200"
