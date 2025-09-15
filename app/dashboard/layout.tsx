@@ -13,7 +13,7 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen flex bg-gradient-to-br from-gray-950 via-purple-950/50 to-gray-950">
       <LeftNav />
-      <main className="flex-1 p-8">{children}</main>
+      <main className="flex-1 p-8 md:p-8 pt-16 md:pt-8">{children}</main>
     </div>
   );
 }
