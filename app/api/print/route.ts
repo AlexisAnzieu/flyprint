@@ -11,6 +11,13 @@ function removeAccents(str: string): string {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
+async function isLogoUploaded(logoUrl: string) {
+  const data = await fetch(logoUrl);
+  if (data.status == 404) {
+    return false;
+  }
+}
+
 interface PrintParams {
   hasTime: boolean;
   pictureUrl?: string;
@@ -91,7 +98,9 @@ async function encodePrintData({
   try {
     encoder = encoder.initialize().align("center");
 
-    if (logoUrl) {
+    const hasLogo = logoUrl && (await isLogoUploaded(logoUrl));
+
+    if (hasLogo) {
       encoder = encoder
         .image(
           await getImage({

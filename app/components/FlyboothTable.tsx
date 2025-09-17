@@ -128,6 +128,36 @@ export default function FlyboothTable({
                     </svg>
                     Éditer
                   </Link>
+
+                  <Link
+                    href="http://localhost:3000/cmfn9p68l00011afnkk2pnhwm"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-white text-sm font-medium hover:from-blue-500/30 hover:to-cyan-500/30 transition-all duration-200 hover:scale-105 border border-blue-500/30 shadow-lg group touch-manipulation"
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <circle
+                        cx="12"
+                        cy="13"
+                        r="3"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                    </svg>
+                    Interface d&apos;envoi
+                  </Link>
                 </div>
               </div>
             </div>
