@@ -130,7 +130,7 @@ export default function FlyboothTable({
                   </Link>
 
                   <Link
-                    href="http://localhost:3000/cmfn9p68l00011afnkk2pnhwm"
+                    href={`${process.env.WEBSITE_URL}/${fb.id}`}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-white text-sm font-medium hover:from-blue-500/30 hover:to-cyan-500/30 transition-all duration-200 hover:scale-105 border border-blue-500/30 shadow-lg group touch-manipulation"
