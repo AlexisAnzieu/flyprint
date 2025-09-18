@@ -13,9 +13,7 @@ function removeAccents(str: string): string {
 
 async function isLogoUploaded(logoUrl: string) {
   const data = await fetch(logoUrl);
-  if (data.status == 404) {
-    return false;
-  }
+  return data.ok;
 }
 
 interface PrintParams {
