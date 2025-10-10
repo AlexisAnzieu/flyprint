@@ -42,6 +42,8 @@ model Flybooth {
     texts      String[]
     team       Team?    @relation(fields: [teamId], references: [id])
     teamId     String?
+    printer    Printer? @relation(fields: [printerId], references: [id])
+    printerId  String?
 }
 
 model Print {
@@ -51,4 +53,21 @@ model Print {
     flyboothId String
     message    String?  @db.Text
     createdAt  DateTime @default(now())
+}
+
+model Printer {
+    id              String     @id @default(cuid())
+    name            String     @unique
+    url             String     @unique
+    createdAt       DateTime   @default(now())
+    updatedAt       DateTime   @updatedAt
+    status          Status     @default(OFFLINE)
+    remainingPrints Int        @default(500)
+    flybooth        Flybooth[]
+}
+
+enum Status {
+    ONLINE
+    OFFLINE
+    ERROR
 }
