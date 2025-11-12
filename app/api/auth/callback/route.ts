@@ -7,13 +7,15 @@ import {
   UnifiedTokenPayload,
 } from "@/lib/auth";
 
+const DEFAULT_REDIRECT_URL = "/dashboard";
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const token = searchParams.get("token");
-  const redirectUrl = searchParams.get("redirectUrl");
+  const redirectUrl = searchParams.get("redirectUrl") || DEFAULT_REDIRECT_URL;
 
-  if (!token || !redirectUrl) {
-    return new NextResponse("Missing token or redirectUrl", { status: 400 });
+  if (!token) {
+    return new NextResponse("Missing token", { status: 400 });
   }
 
   try {
