@@ -1,14 +1,17 @@
-import { AUTH_COOKIE_NAME } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import { AUTH_COOKIE_NAME } from "@/lib/auth";
 
+const CLEAR = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  path: "/",
+  sameSite: "lax" as const,
+  expires: new Date(0),
+};
+
+// Local logout only: clears this app's session; the SSO session stays intact.
 export async function GET() {
-  const response = NextResponse.redirect(process.env.WEBSITE_URL as string);
-  response.cookies.set(AUTH_COOKIE_NAME, "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    sameSite: "lax",
-    expires: new Date(0),
-  });
-  return response;
+  const res = NextResponse.redirect(process.env.WEBSITE_URL as string);
+  res.cookies.set(AUTH_COOKIE_NAME, "", CLEAR);
+  return res;
 }

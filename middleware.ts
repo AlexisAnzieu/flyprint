@@ -2,32 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import { AUTH_COOKIE_NAME } from "./lib/auth";
 
-const AUTH_WEBSITE_ID = "UrOy6TyGKtoiVnXE3ktOw";
-
 export async function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+  const { pathname, search } = req.nextUrl;
 
   if (
     pathname === "/dashboard" ||
     pathname.startsWith("/admin") ||
     /^\/[^/]+\/admin/.test(pathname)
   ) {
+    const loginUrl = new URL("/api/auth/login", req.url);
+    loginUrl.searchParams.set("redirectUrl", `${pathname}${search}`);
     const token = req.cookies.get(AUTH_COOKIE_NAME)?.value;
-    const redirectTo = encodeURIComponent(
-      `${process.env.WEBSITE_URL}/api/auth/callback?redirectUrl=${req.nextUrl.pathname + req.nextUrl.search}`
-    );
-    const authUrl = `${process.env.NEXT_PUBLIC_AUTH_URL}/login?id=${AUTH_WEBSITE_ID}&callbackUrl=${redirectTo}`;
     if (!token) {
-      return NextResponse.redirect(authUrl);
+      return NextResponse.redirect(loginUrl);
     }
     try {
-      // Verify JWT
       const secret = new TextEncoder().encode(process.env.AUTH_SECRET);
       await jwtVerify(token, secret);
-      // Token is valid, allow access
       return NextResponse.next();
     } catch {
-      return NextResponse.redirect(authUrl);
+      return NextResponse.redirect(loginUrl);
     }
   }
   // Allow other paths
