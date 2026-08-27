@@ -13,37 +13,12 @@ export default function Home(props: any) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [userMessage, setUserMessage] = useState<string>("");
 
-  function createFormData(uploadPreset: string, file: Blob) {
+  function createFormData(uploadPreset: string, file: File) {
     const fd = new FormData();
     fd.append("folder", `${CLOUDINARY_FOLDER}/${flyboothId}`);
     fd.append("upload_preset", uploadPreset);
     fd.append("file", file);
     return fd;
-  }
-
-  async function compressImage(file: File): Promise<Blob> {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      const objectUrl = URL.createObjectURL(file);
-      img.onload = () => {
-        URL.revokeObjectURL(objectUrl);
-        const canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
-        canvas.getContext("2d")!.drawImage(img, 0, 0);
-        canvas.toBlob(
-          (blob) =>
-            blob ? resolve(blob) : reject(new Error("Compression failed")),
-          "image/jpeg",
-          0.2,
-        );
-      };
-      img.onerror = () => {
-        URL.revokeObjectURL(objectUrl);
-        reject(new Error("Image load failed"));
-      };
-      img.src = objectUrl;
-    });
   }
 
   async function uploadFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -57,8 +32,7 @@ export default function Home(props: any) {
 
     try {
       const url = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
-      const compressed = await compressImage(file);
-      const fd = createFormData(uploadPreset, compressed);
+      const fd = createFormData(uploadPreset, e.target.files![0]);
 
       const res = await fetch(url, {
         method: "POST",
