@@ -2,7 +2,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import prisma from "@/prisma/db";
 import { NextResponse } from "next/server";
 import EscPosEncoder from "esc-pos-encoder";
-import { createCanvas } from "canvas";
+import { createCanvas } from "@napi-rs/canvas";
 
 // Utility function to remove accents from a string
 function removeAccents(str: string): string {
@@ -37,7 +37,7 @@ async function getImage({
   height: number;
   rotate?: number;
 }) {
-  const { loadImage } = await import("canvas");
+  const { loadImage } = await import("@napi-rs/canvas");
 
   try {
     const image = await loadImage(pictureUrl);
