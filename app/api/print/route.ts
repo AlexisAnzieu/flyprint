@@ -54,7 +54,11 @@ async function getImage({
       ctx.drawImage(image, 0, 0, width, height);
     }
 
-    return canvas;
+    // Return raw RGBA data: esc-pos-encoder detects @napi-rs/canvas (constructor
+    // "CanvasElement") as a DOM element and calls document.createElement, which
+    // is undefined on the server. A plain {data,width,height} uses its Node path.
+    const imageData = ctx.getImageData(0, 0, width, height);
+    return { data: imageData.data, width, height };
   } catch (error) {
     console.error("Error loading image:", error);
     throw error;
@@ -108,7 +112,7 @@ async function encodePrintData({
           }),
           logoWidth,
           logoHeight,
-          "atkinson"
+          "atkinson",
         )
         .newline()
         .newline();
@@ -123,7 +127,7 @@ async function encodePrintData({
         }),
         PICTURE_WIDTH,
         PICTURE_HEIGHT,
-        "atkinson"
+        "atkinson",
       );
     }
 
@@ -165,7 +169,7 @@ export async function GET(req: Request) {
 
     const logoUrl = pictureUrl.replace(
       /\/flybooth\/[^\/]+\/.*/,
-      `/flybooth/${flyboothId}/admin/logo`
+      `/flybooth/${flyboothId}/admin/logo`,
     );
 
     const [flybooth, _] = await Promise.all([
@@ -208,7 +212,7 @@ export async function GET(req: Request) {
       headers: {
         "Content-Type": "application/octet-stream",
       },
-      body: encodedData, //new Blob([Uint8Array.from(encodedData)]),
+      body: new Blob([Uint8Array.from(encodedData)]),
     });
 
     if (!res.ok) {
@@ -251,7 +255,7 @@ export async function POST(request: Request) {
           "Content-Type": "application/octet-stream",
         },
         body: new Blob([Uint8Array.from(printData as any)]),
-      }
+      },
     );
 
     if (!printerResponse.ok) {
@@ -263,7 +267,7 @@ export async function POST(request: Request) {
     console.error("Printing error:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
