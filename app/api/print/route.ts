@@ -123,7 +123,6 @@ async function encodePrintData({
           pictureUrl,
           width: PICTURE_WIDTH,
           height: PICTURE_HEIGHT,
-          rotate: 90,
         }),
         PICTURE_WIDTH,
         PICTURE_HEIGHT,
