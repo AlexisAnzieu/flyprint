@@ -30,12 +30,12 @@ async function getImage({
   pictureUrl,
   width,
   height,
-  rotate,
+  contain,
 }: {
   pictureUrl: string;
   width: number;
   height: number;
-  rotate?: number;
+  contain?: boolean;
 }) {
   const { loadImage } = await import("@napi-rs/canvas");
 
@@ -44,13 +44,24 @@ async function getImage({
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext("2d");
 
-    if (rotate) {
-      // Rotate if needed
-      ctx.translate(width / 2, height / 2);
-      ctx.rotate((rotate * Math.PI) / 180);
-      ctx.translate(-height / 2, -width / 2);
-      ctx.drawImage(image, 0, 0, height, width);
+    if (contain) {
+      // White background so uncovered (letterbox) areas print blank, not black.
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, width, height);
+
+      // Contain-fit: scale to fit inside the frame without distortion, centered.
+      const scale = Math.min(width / image.width, height / image.height);
+      const drawWidth = image.width * scale;
+      const drawHeight = image.height * scale;
+      ctx.drawImage(
+        image,
+        (width - drawWidth) / 2,
+        (height - drawHeight) / 2,
+        drawWidth,
+        drawHeight,
+      );
     } else {
+      // Stretch to fill the exact box (used for the logo).
       ctx.drawImage(image, 0, 0, width, height);
     }
 
@@ -123,6 +134,7 @@ async function encodePrintData({
           pictureUrl,
           width: PICTURE_WIDTH,
           height: PICTURE_HEIGHT,
+          contain: true,
         }),
         PICTURE_WIDTH,
         PICTURE_HEIGHT,
