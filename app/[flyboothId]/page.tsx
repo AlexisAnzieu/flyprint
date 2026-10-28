@@ -1,7 +1,17 @@
 "use client";
 
-import React, { useRef, useState, use } from "react";
+import React, { useEffect, useRef, useState, use } from "react";
+import { IBM_Plex_Mono } from "next/font/google";
 import { CLOUDINARY_FOLDER, cloudName, uploadPreset } from "@/lib/constants";
+
+const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "600"] });
+
+// Zigzag bottom edge, like a torn thermal ticket.
+const ticketEdge = {
+  WebkitMask:
+    "conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 14px 100%",
+  mask: "conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 14px 100%",
+};
 
 export default function Home(props: any) {
   const params: { flyboothId: string } = use(props.params);
@@ -11,7 +21,19 @@ export default function Home(props: any) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [printed, setPrinted] = useState<boolean>(false);
   const [userMessage, setUserMessage] = useState<string>("");
+  // null = unknown, true = connected, false = not connected
+  const [printerConnected, setPrinterConnected] = useState<boolean | null>(
+    null,
+  );
+
+  useEffect(() => {
+    fetch("/api/printer-status")
+      .then((res) => res.json())
+      .then((data) => setPrinterConnected(!!data.connected))
+      .catch(() => setPrinterConnected(false));
+  }, []);
 
   function createFormData(uploadPreset: string, file: File) {
     const fd = new FormData();
@@ -22,7 +44,6 @@ export default function Home(props: any) {
   }
 
   async function uploadFile(e: React.ChangeEvent<HTMLInputElement>) {
-    setIsLoading(true);
     const file = e.target.files?.[0];
     if (!file) {
       // Always reset file input so user can re-select the same file
@@ -30,9 +51,13 @@ export default function Home(props: any) {
       return;
     }
 
+    setIsLoading(true);
+    setError(null);
+    setPrinted(false);
+
     try {
       const url = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
-      const fd = createFormData(uploadPreset, e.target.files![0]);
+      const fd = createFormData(uploadPreset, file);
 
       const res = await fetch(url, {
         method: "POST",
@@ -55,8 +80,10 @@ export default function Home(props: any) {
 
       if (printResponse.error) {
         setError(printResponse.error);
+        return;
       }
 
+      setPrinted(true);
       setUserMessage("");
     } catch (error) {
       setError("Erreur survenue lors de l'envoi de la photo");
@@ -68,14 +95,10 @@ export default function Home(props: any) {
   }
 
   return (
-    <main className="bg-gradient-to-br from-gray-950 via-purple-950/50 to-gray-950 min-h-screen flex justify-center safe-area-pt relative overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute inset-0 bg-gradient-mesh opacity-20"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.3),transparent)] animate-pulse-slow"></div>
-
-      <div className="relative z-10 flex flex-col items-center text-white w-full max-w-lg mx-auto px-6 py-8">
+    <main className="min-h-screen bg-[#efebe3] text-[#161616] safe-area-pt safe-area-pb">
+      <div className="mx-auto flex min-h-screen w-full max-w-md flex-col px-5 py-6">
         <input
-          aria-label="File browser example"
+          aria-label="Prendre une photo"
           type="file"
           accept="image/*"
           capture="user"
@@ -84,91 +107,103 @@ export default function Home(props: any) {
           ref={fileInputRef}
         />
 
-        {/* Header */}
-        <div className="text-center mb-8 animate-fade-in">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">📸 Flybooth</h1>
-          <p className="text-gray-300 text-lg">Capture l&apos;éphémère</p>
-        </div>
-
-        {/* User message input */}
-        <div className="glass-effect rounded-2xl p-6 mb-8 w-full max-w-md">
-          <div className="flex items-start space-x-3">
-            <span className="text-2xl">✍️</span>
-            <div className="flex-1">
-              <h3 className="font-semibold mb-2 ">Ta légende</h3>
-              <textarea
-                className="w-full p-3 rounded-xl  border-white/20 text-black placeholder-gray-400 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/50 focus:outline-none transition-all duration-300 backdrop-blur-sm resize-none"
-                rows={3}
-                value={userMessage}
-                onChange={(e) => setUserMessage(e.target.value)}
-                placeholder="Un peu d'inspiration pour une légende en dessous de ta photo ? Écris-la ici !"
-                disabled={isLoading}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Main capture area */}
-        <div
-          onClick={() => !isLoading && fileInputRef.current?.click()}
-          className={`capture-area mb-8 shadow-2xl transform transition-all duration-300 hover:scale-[1.02] hover:shadow-purple-500/20 h-[60vh] min-h-[350px]
-            ${
-              isLoading
-                ? "bg-gradient-to-br from-gray-700 to-gray-800 cursor-not-allowed"
-                : "bg-gradient-to-br from-white via-gray-50 to-white cursor-pointer hover:from-purple-50 hover:to-blue-50"
-            } text-black border-2 border-white/20`}
+        <header
+          className={`${mono.className} flex items-center justify-between border-b border-[#161616] pb-3 text-xs uppercase tracking-[0.2em]`}
         >
-          {isLoading && (
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
+          <span className="font-semibold">Flybooth</span>
+          <span className="flex items-center gap-2">
+            <span
+              className={`h-2 w-2 rounded-full ${
+                printerConnected === null
+                  ? "bg-[#bbb]"
+                  : printerConnected
+                    ? "bg-[#2f9e5b]"
+                    : "bg-[#e5484d]"
+              }`}
+            />
+            {printerConnected === null
+              ? "Imprimante"
+              : printerConnected
+                ? "Prête"
+                : "Hors ligne"}
+          </span>
+        </header>
+
+        <h1 className="mt-8 text-[2.6rem] font-bold leading-[1.05] tracking-tight">
+          Une photo,
+          <br />
+          un ticket.
+        </h1>
+        <p className="mt-3 text-base text-[#555]">
+          Prends un selfie : il s&apos;imprime tout de suite, avec ta légende en
+          dessous.
+        </p>
+
+        <div
+          className="mt-8 bg-[#fffdf8] px-5 pt-5 pb-8 shadow-[0_1px_0_rgba(0,0,0,0.04)]"
+          style={ticketEdge}
+        >
+          <label
+            htmlFor="caption"
+            className={`${mono.className} flex justify-between text-[11px] uppercase tracking-[0.18em] text-[#777]`}
+          >
+            <span>Légende</span>
+            <span>optionnel</span>
+          </label>
+          <textarea
+            id="caption"
+            className={`${mono.className} mt-3 w-full resize-none border-0 border-b border-dashed border-[#bbb] bg-transparent pb-2 text-[15px] leading-relaxed placeholder-[#aaa] focus:border-[#161616] focus:outline-none focus:ring-0`}
+            rows={2}
+            value={userMessage}
+            onChange={(e) => setUserMessage(e.target.value)}
+            placeholder="Ex. : Joyeux anniversaire Léa !"
+            disabled={isLoading}
+          />
+          <p className={`${mono.className} mt-3 text-[11px] text-[#999]`}>
+            Imprimée sous ta photo.
+          </p>
+        </div>
+
+        <div className="mt-auto flex flex-col items-center pt-10 pb-4">
+          <button
+            type="button"
+            onClick={() => !isLoading && fileInputRef.current?.click()}
+            disabled={isLoading}
+            aria-label="Prendre la photo"
+            className="group relative flex h-24 w-24 items-center justify-center rounded-full border-[3px] border-[#161616] transition-transform active:scale-95 disabled:cursor-not-allowed"
+          >
+            {isLoading ? (
+              <span className="h-16 w-16 animate-spin rounded-full border-[3px] border-[#ccc] border-t-[#161616]" />
+            ) : (
+              <span className="h-[4.5rem] w-[4.5rem] rounded-full bg-[#161616] transition-colors group-hover:bg-[#e5484d]" />
+            )}
+          </button>
+          <p className="mt-4 text-lg font-semibold">
+            {isLoading ? "Impression en cours…" : "Prendre la photo"}
+          </p>
+
+          {printed && !isLoading && (
+            <p
+              role="status"
+              className={`${mono.className} mt-3 text-center text-sm text-[#2f7d4f]`}
+            >
+              C&apos;est imprimé. Récupère ton ticket à l&apos;imprimante.
+            </p>
           )}
 
-          <div className="relative z-10 flex flex-col items-center justify-center h-full px-8">
-            <div
-              className={`text-6xl mb-4 ${
-                isLoading ? "animate-bounce-gentle" : "animate-pulse"
-              }`}
+          {error && (
+            <p
+              role="alert"
+              className={`${mono.className} mt-3 w-full border border-[#e5484d] px-4 py-3 text-center text-sm text-[#b42318]`}
             >
-              {isLoading ? "⏳" : "📸"}
-            </div>
-            <span className="text-2xl md:text-3xl text-center font-bold leading-tight text-shadow">
-              {isLoading
-                ? "Traitement de ton chef-d'œuvre..."
-                : "Appuie ici pour le selfie"}
-            </span>
-            {!isLoading && (
-              <div className="mt-4 text-lg text-gray-600 animate-bounce-gentle">
-                ✨ Prêt quand tu l&apos;es !
-              </div>
-            )}
-          </div>
+              {error}
+            </p>
+          )}
         </div>
 
-        {/* Error display */}
-        {error && (
-          <div className="error-card w-full max-w-md">
-            <div className="flex items-center justify-center mb-2">
-              <span className="text-2xl mr-2">⚠️</span>
-              <span className="font-semibold">Oups !</span>
-            </div>
-            <p className="text-sm">{error}</p>
-          </div>
-        )}
-
-        {/* Tips section */}
-        <div className="glass-effect rounded-2xl p-6 mb-8 w-full max-w-md animate-slide-up">
-          <div className="flex items-start space-x-3">
-            <span className="text-2xl">💡</span>
-            <div>
-              <h3 className="font-semibold mb-2 text-yellow-300">
-                Conseils Pro
-              </h3>
-              <p className="text-sm text-gray-300 leading-relaxed">
-                Pour de meilleurs résultats, trouve un endroit bien éclairé et
-                tiens ton appareil bien stable!
-              </p>
-            </div>
-          </div>
-        </div>
+        <p className={`${mono.className} text-center text-[11px] text-[#888]`}>
+          Astuce : face à la lumière, et ne bouge plus.
+        </p>
       </div>
     </main>
   );
