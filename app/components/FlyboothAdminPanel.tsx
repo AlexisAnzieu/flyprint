@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import Link from "next/link";
 import ThermalPaperPreview from "@/app/components/ThermalPaperPreview";
 import { Flybooth } from "@prisma/client";
@@ -10,12 +10,6 @@ type Props = {
 };
 
 export default function FlyboothAdminPanel({ flybooth }: Props) {
-  // Printer connection state: null = unknown, true = connected, false = not connected
-  const [printerConnected, setPrinterConnected] = useState<boolean | null>(
-    null
-  );
-  const [printerCheckLoading, setPrinterCheckLoading] =
-    useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -36,25 +30,6 @@ export default function FlyboothAdminPanel({ flybooth }: Props) {
   const [logoHeight, setLogoHeight] = useState<number>(
     typeof flybooth?.logoHeight === "number" ? flybooth.logoHeight : 200
   );
-
-  async function checkPrinterConnection() {
-    setPrinterCheckLoading(true);
-    setPrinterConnected(null);
-    try {
-      const res = await fetch("/api/printer-status");
-      const data = await res.json();
-      setPrinterConnected(!!data.connected);
-    } catch {
-      setPrinterConnected(false);
-    } finally {
-      setPrinterCheckLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    // Check printer connection on mount
-    checkPrinterConnection();
-  }, []);
 
   async function uploadFile(e: React.ChangeEvent<HTMLInputElement>) {
     setIsLoading(true);
@@ -173,71 +148,6 @@ export default function FlyboothAdminPanel({ flybooth }: Props) {
       </div>
 
       <div className="w-full  bg-slate-900/80 p-4 sm:p-6 rounded-2xl shadow-xl text-white">
-        {/* Printer status */}
-        <div className="mb-6">
-          <div
-            className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border transition-all duration-300
-            ${
-              printerCheckLoading
-                ? "border-gray-400 bg-gray-900/60"
-                : printerConnected === true
-                ? "border-green-400 bg-green-900/20"
-                : printerConnected === false
-                ? "border-red-400 bg-red-900/20"
-                : "border-gray-400 bg-gray-900/60"
-            }
-          `}
-          >
-            <div className="flex items-center gap-4">
-              <PrinterStatusIcon
-                connected={printerConnected}
-                loading={printerCheckLoading}
-              />
-              <div className="flex-1">
-                <div
-                  className={`text-sm font-semibold ${
-                    printerCheckLoading
-                      ? "text-gray-300"
-                      : printerConnected === true
-                      ? "text-green-400"
-                      : printerConnected === false
-                      ? "text-red-400"
-                      : "text-gray-300"
-                  }`}
-                >
-                  {printerCheckLoading
-                    ? "Vérification de l'imprimante..."
-                    : printerConnected === true
-                    ? "Imprimante connectée"
-                    : printerConnected === false
-                    ? "Imprimante non connectée"
-                    : "Statut inconnu"}
-                </div>
-                <div className="text-slate-400 text-xs mt-1">
-                  {printerConnected === true &&
-                    !printerCheckLoading &&
-                    "L'imprimante est prête à recevoir des impressions."}
-                  {printerConnected === false &&
-                    !printerCheckLoading &&
-                    "Veuillez vérifier la connexion de l'imprimante."}
-                  {printerCheckLoading && "Connexion en cours..."}
-                </div>
-              </div>
-            </div>
-            <button
-              onClick={checkPrinterConnection}
-              disabled={printerCheckLoading}
-              className={`px-4 py-3 rounded font-medium text-white text-sm transition-all duration-300 touch-manipulation w-full sm:w-auto ${
-                printerCheckLoading
-                  ? "bg-slate-500 cursor-not-allowed"
-                  : "bg-gradient-to-r from-green-500 to-emerald-500"
-              }`}
-            >
-              {printerCheckLoading ? "Vérification..." : "Vérifier"}
-            </button>
-          </div>
-        </div>
-
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="space-y-6">
             <div className="bg-white/8 p-4 rounded-lg">
@@ -418,47 +328,4 @@ export default function FlyboothAdminPanel({ flybooth }: Props) {
   );
 }
 
-// Printer status icons
-const PrinterStatusIcon = ({
-  connected,
-  loading,
-}: {
-  connected: boolean | null;
-  loading: boolean;
-}) => {
-  if (loading) {
-    return (
-      <span
-        className="w-8 h-8 border-4 border-gray-300 border-t-green-400 rounded-full animate-spin"
-        title="Vérification en cours"
-      ></span>
-    );
-  }
-  if (connected === null) {
-    return (
-      <span
-        className="w-8 h-8 border-4 border-gray-300 border-t-gray-400 rounded-full animate-spin"
-        title="Statut inconnu"
-      ></span>
-    );
-  }
-  if (connected) {
-    return (
-      <span
-        className="w-8 h-8 flex items-center justify-center bg-green-500/20 border-4 border-green-400 rounded-full text-green-600 text-2xl shadow-lg"
-        title="Imprimante connectée"
-      >
-        ✔️
-      </span>
-    );
-  }
-  return (
-    <span
-      className="w-8 h-8 flex items-center justify-center bg-red-500/20 border-4 border-red-400 rounded-full text-red-600 text-2xl shadow-lg"
-      title="Imprimante non connectée"
-    >
-      ❌
-    </span>
-  );
-};
 import { unstable_noStore as noStore } from "next/cache";

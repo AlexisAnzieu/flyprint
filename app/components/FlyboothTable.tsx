@@ -1,5 +1,6 @@
 import { Flybooth } from "@prisma/client";
 import CreateFlyboothButton from "./CreateFlyboothButton";
+import PrinterStatus from "./PrinterStatus";
 import Link from "next/link";
 
 export default function FlyboothTable({
@@ -20,9 +21,12 @@ export default function FlyboothTable({
           </p>
         </div>
         {flybooths.length > 0 && (
-          <div className="flex justify-start">
-            <CreateFlyboothButton />
-          </div>
+          <>
+            <div className="flex justify-start">
+              <CreateFlyboothButton />
+            </div>
+            <PrinterStatus />
+          </>
         )}
       </div>
 
@@ -200,6 +204,9 @@ export default function FlyboothTable({
             </div>
             <div className="pt-2">
               <CreateFlyboothButton />
+            </div>
+            <div className="pt-2 text-left">
+              <PrinterStatus />
             </div>
           </div>
         </div>
