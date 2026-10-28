@@ -95,8 +95,8 @@ export default function Home(props: any) {
   }
 
   return (
-    <main className="min-h-screen bg-[#efebe3] text-[#161616] safe-area-pt safe-area-pb">
-      <div className="mx-auto flex min-h-screen w-full max-w-md flex-col px-5 py-6">
+    <main className="min-h-dvh bg-[#efebe3] text-[#161616]">
+      <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-5 py-6 safe-area-pt safe-area-pb">
         <input
           aria-label="Prendre une photo"
           type="file"
@@ -129,18 +129,13 @@ export default function Home(props: any) {
           </span>
         </header>
 
-        <h1 className="mt-8 text-[2.6rem] font-bold leading-[1.05] tracking-tight">
-          Une photo,
-          <br />
-          un ticket.
-        </h1>
-        <p className="mt-3 text-base text-[#555]">
+        <p className="mt-5 text-base text-[#555]">
           Prends un selfie : il s&apos;imprime tout de suite, avec ta légende en
           dessous.
         </p>
 
         <div
-          className="mt-8 bg-[#fffdf8] px-5 pt-5 pb-8 shadow-[0_1px_0_rgba(0,0,0,0.04)]"
+          className="mt-5 bg-[#fffdf8] px-5 pt-5 pb-8 shadow-[0_1px_0_rgba(0,0,0,0.04)]"
           style={ticketEdge}
         >
           <label
@@ -164,7 +159,7 @@ export default function Home(props: any) {
           </p>
         </div>
 
-        <div className="mt-auto flex flex-col items-center pt-10 pb-4">
+        <div className="mt-auto flex flex-col items-center pt-6 pb-4">
           <button
             type="button"
             onClick={() => !isLoading && fileInputRef.current?.click()}
