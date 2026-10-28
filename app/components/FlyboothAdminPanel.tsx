@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import ThermalPaperPreview from "@/app/components/ThermalPaperPreview";
 import { Flybooth } from "@prisma/client";
@@ -30,6 +31,12 @@ export default function FlyboothAdminPanel({ flybooth }: Props) {
   const [logoHeight, setLogoHeight] = useState<number>(
     typeof flybooth?.logoHeight === "number" ? flybooth.logoHeight : 200
   );
+  const [logoMissing, setLogoMissing] = useState<boolean>(false);
+  const [saved, setSaved] = useState<boolean>(false);
+
+  useEffect(() => {
+    setSaved(false);
+  }, [text, hasTime, logoWidth, logoHeight]);
 
   async function uploadFile(e: React.ChangeEvent<HTMLInputElement>) {
     setIsLoading(true);
@@ -52,6 +59,7 @@ export default function FlyboothAdminPanel({ flybooth }: Props) {
       const response: any = await res.json();
       if (res.ok && response.secure_url) {
         setUploadedImageUrl(response.secure_url);
+        setLogoMissing(false);
       } else {
         setError(
           response.error || "Erreur survenue lors de l'envoi de la photo"
@@ -86,6 +94,7 @@ export default function FlyboothAdminPanel({ flybooth }: Props) {
       if (!response.ok) {
         throw new Error("Erreur survenue lors de l'envoi du texte");
       }
+      setSaved(true);
     } catch (error: any) {
       setTextError(error.message);
     } finally {
@@ -136,184 +145,217 @@ export default function FlyboothAdminPanel({ flybooth }: Props) {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center  pt-12 md:pt-0">
+    <div className="max-w-6xl mx-auto space-y-4 pt-12 md:pt-0">
+      <div className="flex items-center gap-3">
         <Link
           href="/dashboard"
-          className="px-3 py-2 rounded bg-white/6 text-white hover:bg-white/10 touch-manipulation"
+          aria-label="Retour au tableau de bord"
+          className="px-3 py-2 rounded-lg bg-white text-gray-700 shadow-sm hover:bg-gray-100 touch-manipulation"
         >
           ←
         </Link>
-        <div className="text-white font-semibold truncate">{flybooth.name}</div>
+        <div className="min-w-0">
+          <h1 className="text-xl font-semibold text-white truncate">
+            {flybooth.name}
+          </h1>
+          <p className="text-sm text-white/70">
+            Personnalisez le ticket imprimé pour vos invités.
+          </p>
+        </div>
       </div>
 
-      <div className="w-full  bg-slate-900/80 p-4 sm:p-6 rounded-2xl shadow-xl text-white">
-        <div className="grid gap-6 lg:grid-cols-2">
-          <div className="space-y-6">
-            <div className="bg-white/8 p-4 rounded-lg">
-              <h4 className="font-semibold mb-3">
-                Configuration de l&apos;impression
-              </h4>
-
-              <input
-                aria-label="File browser example"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={uploadFile}
-                ref={fileInputRef}
-              />
-              <button
-                type="button"
-                onClick={() => !isLoading && fileInputRef.current?.click()}
-                disabled={isLoading}
-                className={`w-full sm:w-auto px-4 py-3 rounded-md font-medium text-white touch-manipulation ${
-                  isLoading
-                    ? "bg-slate-500 cursor-not-allowed"
-                    : "bg-gradient-to-r from-purple-500 to-pink-500"
-                }`}
-              >
-                {isLoading ? "Envoi..." : "Modifier le logo"}
-              </button>
-
-              <div className="mt-4 space-y-4">
-                <label className="block text-slate-300 font-medium mb-2">
-                  Texte d&apos;impression
-                </label>
-                <textarea
-                  className="w-full p-3 rounded-lg bg-white/5 text-white placeholder-slate-400"
-                  rows={5}
-                  value={text.join("\n")}
-                  onChange={(e) => setText(e.target.value.split("\n"))}
-                  placeholder="Entrez votre texte d'impression ici..."
-                />
-                <div className="flex items-center gap-3">
-                  <label
-                    className={`flex items-center gap-2 cursor-pointer p-2 rounded ${
-                      hasTime ? "bg-purple-500/20" : "bg-white/5"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={hasTime}
-                      onChange={(e) => setHasTime(e.target.checked)}
-                      className="sr-only"
+      <div className="bg-white rounded-2xl shadow-xl text-gray-900 p-4 sm:p-6">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto]">
+          <div className="space-y-8">
+            <Step
+              number={1}
+              title="Logo en haut du ticket"
+              description="Le logo est enregistré dès que vous le choisissez."
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-20 h-20 flex-shrink-0 rounded-lg border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden">
+                  {uploadedImageUrl && !logoMissing ? (
+                    <Image
+                      src={uploadedImageUrl}
+                      alt="Logo actuel"
+                      width={80}
+                      height={80}
+                      className="object-contain w-full h-full"
+                      onError={() => setLogoMissing(true)}
                     />
-                    <div
-                      className={`w-4 h-4 rounded border ${
-                        hasTime
-                          ? "bg-purple-500 border-purple-500"
-                          : "border-slate-400"
-                      }`}
-                    >
-                      {hasTime && <span className="text-white text-xs">✓</span>}
-                    </div>
-                    <span className="text-sm text-white">
-                      Ajouter l&apos;heure d&apos;impression
+                  ) : (
+                    <span className="text-xs text-gray-400 text-center px-1">
+                      Aucun logo
                     </span>
-                  </label>
+                  )}
                 </div>
-
-                <div>
-                  <h5 className="text-sm text-slate-300 mb-2">
-                    Dimensions du logo
-                  </h5>
-                  <div className="space-y-4 sm:grid sm:grid-cols-2 sm:gap-3 sm:space-y-0">
-                    <div>
-                      <label className="text-xs text-slate-400 block mb-1">
-                        Largeur
-                      </label>
-                      <input
-                        type="range"
-                        min={104}
-                        max={2000}
-                        step={8}
-                        value={logoWidth}
-                        onChange={(e) =>
-                          setLogoWidth(
-                            Math.round(parseInt(e.target.value) / 8) * 8
-                          )
-                        }
-                        className="w-full"
-                      />
-                      <div className="text-xs text-white mt-1">
-                        {logoWidth}px
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-xs text-slate-400 block mb-1">
-                        Hauteur
-                      </label>
-                      <input
-                        type="range"
-                        min={8}
-                        max={300}
-                        step={8}
-                        value={logoHeight}
-                        onChange={(e) =>
-                          setLogoHeight(
-                            Math.round(parseInt(e.target.value) / 8) * 8
-                          )
-                        }
-                        className="w-full"
-                      />
-                      <div className="text-xs text-white mt-1">
-                        {logoHeight}px
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {error && (
-                  <div className="p-2 bg-red-500/20 rounded text-red-300">
-                    {error}
-                  </div>
-                )}
-                {textError && (
-                  <div className="p-2 bg-red-500/20 rounded text-red-300">
-                    {textError}
-                  </div>
-                )}
-
+                <input
+                  aria-label="Choisir un logo"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={uploadFile}
+                  ref={fileInputRef}
+                />
                 <button
-                  onClick={sendText}
-                  disabled={textLoading}
-                  className={`w-full mt-2 py-3 rounded font-semibold touch-manipulation ${
-                    textLoading
-                      ? "bg-slate-500"
-                      : "bg-gradient-to-r from-purple-500 to-pink-500"
+                  type="button"
+                  onClick={() => !isLoading && fileInputRef.current?.click()}
+                  disabled={isLoading}
+                  className={`px-4 py-3 rounded-lg font-medium text-white touch-manipulation ${
+                    isLoading
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
                   }`}
                 >
-                  {textLoading
-                    ? "Envoi en cours..."
-                    : "Mettre à jour la configuration"}
+                  {isLoading ? "Envoi..." : "Changer le logo"}
                 </button>
               </div>
+              {error && (
+                <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                  {error}
+                </div>
+              )}
+
+              <div className="mt-5">
+                <h4 className="text-sm font-medium text-gray-700">
+                  Taille du logo sur le ticket
+                </h4>
+                <p className="text-xs text-gray-500 mb-3">
+                  Regardez l&apos;aperçu pour ajuster.
+                </p>
+                <div className="space-y-4 sm:grid sm:grid-cols-2 sm:gap-6 sm:space-y-0">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <label htmlFor="logo-width" className="text-gray-600">
+                        Largeur
+                      </label>
+                      <span className="font-mono text-gray-900">
+                        {logoWidth}px
+                      </span>
+                    </div>
+                    <input
+                      id="logo-width"
+                      type="range"
+                      min={104}
+                      max={2000}
+                      step={8}
+                      value={logoWidth}
+                      onChange={(e) =>
+                        setLogoWidth(
+                          Math.round(parseInt(e.target.value) / 8) * 8
+                        )
+                      }
+                      className="w-full accent-purple-600"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <label htmlFor="logo-height" className="text-gray-600">
+                        Hauteur
+                      </label>
+                      <span className="font-mono text-gray-900">
+                        {logoHeight}px
+                      </span>
+                    </div>
+                    <input
+                      id="logo-height"
+                      type="range"
+                      min={8}
+                      max={300}
+                      step={8}
+                      value={logoHeight}
+                      onChange={(e) =>
+                        setLogoHeight(
+                          Math.round(parseInt(e.target.value) / 8) * 8
+                        )
+                      }
+                      className="w-full accent-purple-600"
+                    />
+                  </div>
+                </div>
+              </div>
+            </Step>
+
+            <Step
+              number={2}
+              title="Texte sous la photo"
+              description="Chaque ligne est imprimée, centrée, sous la photo de l'invité."
+            >
+              <textarea
+                className="w-full p-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                rows={4}
+                value={text.join("\n")}
+                onChange={(e) => setText(e.target.value.split("\n"))}
+                placeholder={"Ex. : Mariage de Julie & Marc\nMerci d'être là !"}
+              />
+              <label className="mt-3 flex items-center gap-3 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={hasTime}
+                  onChange={(e) => setHasTime(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <span className="relative w-10 h-6 flex-shrink-0 rounded-full bg-gray-300 transition-colors peer-checked:bg-purple-600 peer-focus-visible:ring-2 peer-focus-visible:ring-purple-500 after:absolute after:top-1 after:left-1 after:w-4 after:h-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-4" />
+                <span className="text-sm text-gray-700">
+                  Imprimer la date et l&apos;heure sous le texte
+                </span>
+              </label>
+            </Step>
+
+            <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+              {textError && (
+                <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                  {textError}
+                </div>
+              )}
+              <button
+                onClick={sendText}
+                disabled={textLoading}
+                className={`w-full py-3 rounded-lg font-semibold text-white touch-manipulation ${
+                  textLoading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                }`}
+              >
+                {textLoading
+                  ? "Enregistrement..."
+                  : "Enregistrer les modifications"}
+              </button>
+              <p
+                className={`text-xs mt-2 text-center ${
+                  saved ? "text-green-700" : "text-gray-500"
+                }`}
+              >
+                {saved
+                  ? "✓ Modifications enregistrées"
+                  : "Enregistre la taille du logo, le texte et l'option date."}
+              </p>
             </div>
 
-            <div className="bg-white/8 p-4 rounded-lg">
-              <h4 className="font-semibold mb-3">
-                Impression QR Code pour le public
-              </h4>
+            <Step
+              number={3}
+              title="QR code pour vos invités"
+              description="Imprime un ticket avec un QR code. Vos invités le scannent pour envoyer leurs photos à l'imprimante."
+            >
               <button
                 onClick={printQRCode}
-                className="w-full py-3 rounded bg-gradient-to-r from-green-500 to-emerald-500 text-white touch-manipulation"
+                className="w-full py-3 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold touch-manipulation"
               >
                 🖨️ Imprimer le QR code
               </button>
               {printError && (
-                <div className="mt-3 p-2 bg-red-500/20 rounded text-red-300">
+                <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
                   {printError}
                 </div>
               )}
-              <p className="text-xs text-slate-300 mt-2 text-center">
-                Imprime un QR code pour accéder à la page publique
-              </p>
-            </div>
+            </Step>
           </div>
 
-          <div className="bg-white/8 p-4 rounded-lg">
-            <h4 className="font-semibold mb-3">Aperçu</h4>
+          <div className="lg:sticky lg:top-6 self-start rounded-xl border border-gray-200 bg-gray-50 p-4">
+            <h3 className="font-semibold">Aperçu du ticket</h3>
+            <p className="text-sm text-gray-500">
+              Mis à jour en direct pendant que vous modifiez.
+            </p>
             <ThermalPaperPreview
               uploadedImageUrl={uploadedImageUrl ?? null}
               logoWidth={logoWidth}
@@ -325,6 +367,31 @@ export default function FlyboothAdminPanel({ flybooth }: Props) {
         </div>
       </div>
     </div>
+  );
+}
+
+function Step({
+  number,
+  title,
+  description,
+  children,
+}: {
+  number: number;
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="flex gap-4">
+      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 text-purple-700 font-semibold flex items-center justify-center">
+        {number}
+      </div>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-semibold text-gray-900">{title}</h3>
+        <p className="text-sm text-gray-500 mb-3">{description}</p>
+        {children}
+      </div>
+    </section>
   );
 }
 
