@@ -48,6 +48,41 @@
   text-decoration: none;
 }
 
+.barEnd {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+/* FR / EN: the current language is filled in. */
+.switcher {
+  display: flex;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.switcher a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  padding: 0 0.75rem;
+  color: inherit;
+  font-weight: 700;
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.switcher a[aria-current="page"] {
+  background: var(--ink);
+  color: var(--rose);
+}
+
+.page .switcher a:focus-visible {
+  outline-offset: -5px;
+  outline-color: currentColor;
+}
+
 .barLink {
   color: inherit;
   font-weight: 600;
