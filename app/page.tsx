@@ -1,104 +1,169 @@
-"use client";
-
+import type { Metadata } from "next";
 import Link from "next/link";
+import { Archivo } from "next/font/google";
+import PrintingTicket from "./components/landing/PrintingTicket";
+import styles from "./components/landing/landing.module.css";
+
+const archivo = Archivo({
+  subsets: ["latin"],
+  axes: ["wdth"],
+  display: "swap",
+});
+
+export const metadata: Metadata = {
+  title: "Flyprint, le photobooth qui imprime sur ticket",
+  description:
+    "Vos invités prennent un selfie avec leur téléphone, la photo sort en noir et blanc sur une imprimante thermique, avec votre logo.",
+};
+
+const steps = [
+  {
+    title: "Imprimez le QR code",
+    text: "Depuis le dashboard, l'imprimante sort un ticket avec le QR code de votre événement. Posez-le près d'elle.",
+  },
+  {
+    title: "Vos invités le scannent",
+    text: "Rien à installer. La page s'ouvre dans le navigateur : un selfie, une légende si on veut.",
+  },
+  {
+    title: "Le ticket sort",
+    text: "La photo en noir et blanc, votre logo, la légende et l'heure. Ils repartent avec.",
+  },
+];
+
+const settings = [
+  {
+    term: "Votre logo",
+    text: "En haut de chaque ticket, à la taille que vous choisissez.",
+  },
+  {
+    term: "Vos lignes de texte",
+    text: "Un hashtag, une date, un merci : elles s'impriment sous chaque photo.",
+  },
+  {
+    term: "L'heure",
+    text: "Sous la photo, ou pas du tout.",
+  },
+  {
+    term: "Un flybooth par événement",
+    text: "Chacun a son lien, son QR code et ses réglages.",
+  },
+  {
+    term: "Les statistiques",
+    text: "Le nombre de photos imprimées, et à quel moment de la soirée.",
+  },
+  {
+    term: "L'état de l'imprimante",
+    text: "Le dashboard vous dit si elle est en ligne avant que les invités arrivent.",
+  },
+];
 
 export default function LandingPage() {
   return (
-    <main className="bg-gradient-to-br from-gray-950 via-purple-950/50 to-gray-950 min-h-screen flex flex-col items-center safe-area-pt relative overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute inset-0 bg-gradient-mesh opacity-20"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.3),transparent)] animate-pulse-slow"></div>
+    <div className={`${archivo.className} ${styles.page}`}>
+      <header className={styles.bar}>
+        <Link href="/" className={styles.wordmark}>
+          Flyprint
+        </Link>
+        <Link href="/dashboard" className={styles.barLink}>
+          Dashboard
+        </Link>
+      </header>
 
-      <div className="relative z-10 flex flex-col items-center text-white w-full max-w-2xl mx-auto px-6 py-12">
-        {/* Hero Section */}
-        <header className="text-center mb-10 animate-fade-in">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Flyprint</h1>
-          <p className="text-gray-300 text-xl mb-6">
-            Solution professionnelle de photobooth connecté pour événements,
-            entreprises et lieux publics.
-            <br />
-            Impression instantanée, personnalisation avancée, gestion
-            centralisée.
-          </p>
-          <div className="flex justify-center gap-4">
-            <Link href="/dashboard" className="btn-primary">
-              Commencer
-            </Link>
+      <main>
+        <section className={styles.hero}>
+          <div className={styles.heroText}>
+            <h1 className={`${styles.display} ${styles.headline}`}>
+              Souriez,
+              <br />
+              c&apos;est
+              <br />
+              imprimé.
+            </h1>
+            <p className={styles.lede}>
+              Flyprint transforme une imprimante thermique en photobooth. Vos
+              invités prennent un selfie avec leur téléphone, et la photo sort
+              sur ticket, en noir et blanc, avec votre logo.
+            </p>
+            <div className={styles.actions}>
+              <Link href="/dashboard" className={styles.primary}>
+                Créer un flybooth
+              </Link>
+              <a href="#fonctionnement" className={styles.textLink}>
+                Comment ça marche
+              </a>
+            </div>
           </div>
-        </header>
 
-        {/* Features Section */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 w-full">
-          <div className="glass-effect rounded-2xl p-6 flex flex-col items-center text-center">
-            <span className="text-2xl mb-2">✓</span>
-            <h3 className="font-semibold mb-2">Impression instantanée</h3>
-            <p className="text-gray-300 text-sm">
-              Impression rapide et fiable pour chaque photo prise, idéale pour
-              les événements professionnels.
-            </p>
-          </div>
-          <div className="glass-effect rounded-2xl p-6 flex flex-col items-center text-center">
-            <span className="text-2xl mb-2">✓</span>
-            <h3 className="font-semibold mb-2">Personnalisation avancée</h3>
-            <p className="text-gray-300 text-sm">
-              Ajoutez des légendes, logos et designs personnalisés pour
-              renforcer votre image de marque.
-            </p>
-          </div>
-          <div className="glass-effect rounded-2xl p-6 flex flex-col items-center text-center">
-            <span className="text-2xl mb-2">✓</span>
-            <h3 className="font-semibold mb-2">Gestion centralisée</h3>
-            <p className="text-gray-300 text-sm">
-              Suivi des impressions, statistiques et administration sécurisée
-              via le dashboard.
-            </p>
-          </div>
+          <PrintingTicket displayFont={archivo.style.fontFamily} />
         </section>
 
-        {/* How It Works Section */}
-        <section className="glass-effect rounded-2xl p-8 mb-12 w-full animate-slide-up">
-          <h2 className="text-2xl font-bold mb-6 text-center gradient-text">
-            Fonctionnement
+        <section id="fonctionnement" className={styles.section}>
+          <h2 className={`${styles.display} ${styles.sectionTitle}`}>
+            Comment ça marche
           </h2>
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-            <div className="flex flex-col items-center">
-              <span className="text-4xl mb-2">📷</span>
-              <span className="font-semibold">1. Capturez la photo</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="text-4xl mb-2">🎨</span>
-              <span className="font-semibold">
-                2. Personnalisez avec légende et logo
-              </span>
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="text-4xl mb-2">🖨️</span>
-              <span className="font-semibold">3. Impression immédiate</span>
-            </div>
-          </div>
+          <ol className={styles.steps}>
+            {steps.map((step, i) => (
+              <li key={step.title}>
+                <span className={styles.stepNum} aria-hidden="true">
+                  {i + 1}
+                </span>
+                <h3 className={styles.stepTitle}>{step.title}</h3>
+                <p className={styles.stepText}>{step.text}</p>
+              </li>
+            ))}
+          </ol>
         </section>
 
-        {/* Footer */}
-        <footer className="w-full text-center text-gray-400 py-6 text-sm">
-          <div className="mb-2">
-            <Link href="/dashboard" className="underline hover:text-white">
-              Dashboard
+        <section className={`${styles.section} ${styles.settings}`}>
+          <h2 className={`${styles.display} ${styles.sectionTitle}`}>
+            Ce que vous réglez
+          </h2>
+          <dl className={styles.settingsGrid}>
+            {settings.map((s) => (
+              <div key={s.term}>
+                <dt>{s.term}</dt>
+                <dd>{s.text}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        <section className={styles.closing}>
+          <h2 className={`${styles.display} ${styles.closingTitle}`}>
+            Branchez l&apos;imprimante, la soirée fait le reste.
+          </h2>
+          <div className={styles.actions}>
+            <Link href="/dashboard" className={styles.primary}>
+              Créer un flybooth
             </Link>
-            {" | "}
-            <Link
+            <a href="/flybooth_manual_v1.pdf" className={styles.textLink}>
+              Lire le manuel d&apos;installation
+            </a>
+          </div>
+        </section>
+      </main>
+
+      <footer className={styles.footer}>
+        <span>© {new Date().getFullYear()} Flyprint</span>
+        <ul className={styles.footerLinks}>
+          <li>
+            <Link href="/dashboard">Dashboard</Link>
+          </li>
+          <li>
+            <a href="/flybooth_manual_v1.pdf">Manuel d&apos;installation</a>
+          </li>
+          <li>
+            <a
               href="https://github.com/AlexisAnzieu/flyprint"
-              className="underline hover:text-white"
               target="_blank"
               rel="noopener noreferrer"
             >
               Code source
-            </Link>
-          </div>
-          <div>
-            © {new Date().getFullYear()} Flyprint — Photobooth professionnel.
-          </div>
-        </footer>
-      </div>
-    </main>
+            </a>
+          </li>
+        </ul>
+      </footer>
+    </div>
   );
 }
