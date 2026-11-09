@@ -84,15 +84,72 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, max: number) {
   return lines;
 }
 
+// Ticket layout, top to bottom: logo, photo, text block.
+const LOGO_TOP = 40;
+const PIC_TOP = LOGO_TOP + 200 + 40;
+const TEXT_TOP = PIC_TOP + PIC_H;
+const PIC_LEFT = (PAPER_W - PIC_W) / 2;
+
+// 1-bit pass, in place: every pixel is either burnt (ink) or blank (paper).
+function burn(img: ImageData) {
+  const d = img.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const c = d[i] < 128 ? INK : PAPER;
+    d[i] = c[0];
+    d[i + 1] = c[1];
+    d[i + 2] = c[2];
+    d[i + 3] = 255;
+  }
+  return img;
+}
+
+// The event's logo, as an organiser would upload it. Drawn once, then reused.
+function renderLogo(displayFont: string) {
+  const c = document.createElement("canvas");
+  c.width = PAPER_W;
+  c.height = PIC_TOP;
+  const ctx = c.getContext("2d")!;
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, PAPER_W, PIC_TOP);
+  ctx.fillStyle = "#000";
+  ctx.strokeStyle = "#000";
+  ctx.textAlign = "center";
+  const mid = PAPER_W / 2;
+  ctx.lineWidth = 7;
+  ctx.beginPath();
+  ctx.arc(mid, LOGO_TOP + 70, 64, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.font = `900 66px ${displayFont}`;
+  ctx.fillText("30", mid, LOGO_TOP + 94);
+  ctx.font = `800 46px ${displayFont}`;
+  ctx.fillText("Léa", mid, LOGO_TOP + 192);
+  return burn(ctx.getImageData(0, 0, PAPER_W, PIC_TOP));
+}
+
+// A dithered photo, centred on a full-width strip of paper. Built once per photo.
+function renderPhoto(dithered: Float32Array) {
+  const img = new ImageData(PAPER_W, PIC_H);
+  const d = img.data;
+  for (let y = 0; y < PIC_H; y++) {
+    for (let x = 0; x < PAPER_W; x++) {
+      const inPic = x >= PIC_LEFT && x < PIC_LEFT + PIC_W;
+      d[(y * PAPER_W + x) * 4] = inPic ? dithered[y * PIC_W + x - PIC_LEFT] : 255;
+    }
+  }
+  return burn(img);
+}
+
+// Typing in the caption only redraws the text block: logo and photo are cached
+// pixels, which keeps each keystroke cheap on slow phones.
 function drawTicket(
   canvas: HTMLCanvasElement,
-  dithered: Float32Array,
+  logo: ImageData,
+  photo: ImageData,
   caption: string,
-  displayFont: string,
 ) {
-  const measure = canvas.getContext("2d")!;
-  measure.font = TICKET_FONT;
-  const captionLines = wrap(measure, removeAccents(caption.trim()), PAPER_W - 48);
+  const ctx = canvas.getContext("2d")!;
+  ctx.font = TICKET_FONT;
+  const captionLines = wrap(ctx, removeAccents(caption.trim()), PAPER_W - 48);
   const date = new Date().toLocaleString("fr-FR", {
     day: "2-digit",
     month: "2-digit",
@@ -101,68 +158,31 @@ function drawTicket(
     minute: "2-digit",
   });
 
-  const logoTop = 40;
-  const logoH = 200;
-  const picTop = logoTop + logoH + 40;
-  let y = picTop + PIC_H + 30;
-  const textRows: { text: string; y: number }[] = [];
-  const push = (lines: string[]) => {
-    if (!lines.length) return;
+  let y = 30;
+  const rows: { text: string; y: number }[] = [];
+  for (const lines of [captionLines, EVENT_TEXTS, [date]]) {
+    if (!lines.length) continue;
     y += 14;
     for (const text of lines) {
-      textRows.push({ text, y });
+      rows.push({ text, y });
       y += LINE_H;
     }
-  };
-  push(captionLines);
-  push(EVENT_TEXTS);
-  push([date]);
-  const height = y + 70;
+  }
+  const textH = y + 70;
+  const height = TEXT_TOP + textH;
 
-  canvas.width = PAPER_W;
-  canvas.height = height;
-  const ctx = canvas.getContext("2d")!;
+  if (canvas.height !== height) canvas.height = height;
+  ctx.putImageData(logo, 0, 0);
+  ctx.putImageData(photo, 0, PIC_TOP);
+
   ctx.fillStyle = "#fff";
-  ctx.fillRect(0, 0, PAPER_W, height);
+  ctx.fillRect(0, TEXT_TOP, PAPER_W, textH);
   ctx.fillStyle = "#000";
-  ctx.strokeStyle = "#000";
+  ctx.font = TICKET_FONT;
   ctx.textAlign = "center";
   ctx.textBaseline = "alphabetic";
-
-  // The event's logo, as an organiser would upload it.
-  const mid = PAPER_W / 2;
-  ctx.lineWidth = 7;
-  ctx.beginPath();
-  ctx.arc(mid, logoTop + 70, 64, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.font = `900 66px ${displayFont}`;
-  ctx.fillText("30", mid, logoTop + 94);
-  ctx.font = `800 46px ${displayFont}`;
-  ctx.fillText("Léa", mid, logoTop + 192);
-
-  ctx.font = TICKET_FONT;
-  for (const row of textRows) ctx.fillText(row.text, mid, row.y + 24);
-
-  // 1-bit pass: everything is either burnt or blank.
-  const img = ctx.getImageData(0, 0, PAPER_W, height);
-  const d = img.data;
-  const picLeft = (PAPER_W - PIC_W) / 2;
-  for (let py = 0; py < height; py++) {
-    for (let px = 0; px < PAPER_W; px++) {
-      const i = (py * PAPER_W + px) * 4;
-      let lum: number;
-      const inPic =
-        px >= picLeft && px < picLeft + PIC_W && py >= picTop && py < picTop + PIC_H;
-      if (inPic) lum = dithered[(py - picTop) * PIC_W + (px - picLeft)];
-      else lum = d[i];
-      const c = lum < 128 ? INK : PAPER;
-      d[i] = c[0];
-      d[i + 1] = c[1];
-      d[i + 2] = c[2];
-      d[i + 3] = 255;
-    }
-  }
-  ctx.putImageData(img, 0, 0);
+  for (const row of rows) ctx.fillText(row.text, PAPER_W / 2, TEXT_TOP + row.y + 24);
+  ctx.putImageData(burn(ctx.getImageData(0, TEXT_TOP, PAPER_W, textH)), 0, TEXT_TOP);
 }
 
 export default function PrintingTicket({
@@ -174,7 +194,8 @@ export default function PrintingTicket({
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-  const photoRef = useRef<Float32Array | null>(null);
+  const logoRef = useRef<ImageData | null>(null);
+  const photoRef = useRef<ImageData | null>(null);
   const [caption, setCaption] = useState(copy.defaultCaption);
   const [printId, setPrintId] = useState(0);
   const [ready, setReady] = useState(false);
@@ -187,7 +208,8 @@ export default function PrintingTicket({
     const photo = new Promise<void>((resolve) => {
       const img = new Image();
       img.onload = () => {
-        if (!photoRef.current) photoRef.current = photoToGray(img);
+        // An upload may have landed first: keep it.
+        if (!photoRef.current) photoRef.current = renderPhoto(photoToGray(img));
         resolve();
       };
       img.onerror = () => resolve();
@@ -197,7 +219,9 @@ export default function PrintingTicket({
       .load(`800 46px ${displayFont}`)
       .catch(() => undefined);
     Promise.all([photo, font]).then(() => {
-      if (!cancelled) setReady(true);
+      if (cancelled) return;
+      logoRef.current = renderLogo(displayFont);
+      setReady(true);
     });
     return () => {
       cancelled = true;
@@ -205,9 +229,10 @@ export default function PrintingTicket({
   }, [displayFont]);
 
   useEffect(() => {
-    if (!ready || !canvasRef.current || !photoRef.current) return;
-    drawTicket(canvasRef.current, photoRef.current, caption, displayFont);
-  }, [ready, caption, printId, displayFont]);
+    const canvas = canvasRef.current;
+    if (!ready || !canvas || !logoRef.current || !photoRef.current) return;
+    drawTicket(canvas, logoRef.current, photoRef.current, caption);
+  }, [ready, caption, printId]);
 
   const onFile = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -216,7 +241,7 @@ export default function PrintingTicket({
     const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => {
-      photoRef.current = atkinson(photoToGray(img), PIC_W, PIC_H);
+      photoRef.current = renderPhoto(atkinson(photoToGray(img), PIC_W, PIC_H));
       URL.revokeObjectURL(url);
       setFormatError(false);
       setPrintId((n) => n + 1);

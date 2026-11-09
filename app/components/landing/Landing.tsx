@@ -59,7 +59,7 @@ export default function Landing({ lang }: { lang: Lang }) {
               </Link>
             ))}
           </nav>
-          <Link href="/dashboard" className={styles.barLink}>
+          <Link href="/dashboard" prefetch={false} className={styles.barLink}>
             {t.footer.dashboard}
           </Link>
         </div>
@@ -71,7 +71,12 @@ export default function Landing({ lang }: { lang: Lang }) {
             <h1 className={`${styles.display} ${styles.headline}`}>
               {t.headline.map((line, i) => (
                 <span key={line}>
-                  {i > 0 && <br />}
+                  {i > 0 && (
+                    <>
+                      {" "}
+                      <br />
+                    </>
+                  )}
                   {line}
                 </span>
               ))}
@@ -205,7 +210,7 @@ export default function Landing({ lang }: { lang: Lang }) {
         </span>
         <ul className={styles.footerLinks}>
           <li>
-            <Link href="/dashboard">{t.footer.dashboard}</Link>
+            <Link href="/dashboard" prefetch={false}>{t.footer.dashboard}</Link>
           </li>
           <li>
             <a href="/flybooth_manual_v1.pdf" hrefLang="fr">
